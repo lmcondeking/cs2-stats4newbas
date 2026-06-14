@@ -460,7 +460,7 @@ export default function Home() {
                 .map((match) => (
                   <div
                     key={match.demoFile}
-                    className="rounded-2xl border border-zinc-800 bg-black p-5"
+                    className="rounded-xl border border-zinc-800 bg-black p-4"
                   >
                     <div className="flex items-center justify-between gap-4">
                       <p className="text-xl font-black text-red-500">
@@ -556,21 +556,21 @@ function SpecialRanking({
   getText: (player: any) => string;
 }) {
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-black p-5">
-      <h3 className="mb-5 text-xl font-black text-white">{title}</h3>
+    <div className="rounded-xl border border-zinc-800 bg-black p-4">
+      <h3 className="mb-4 text-lg font-black text-white">{title}</h3>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {ranking.map((p, i) => {
           const gc = playerMeta[String(p.steamid)]?.gc || "-";
 
           return (
             <div
               key={p.steamid}
-              className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 hover:border-zinc-700"
+              className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-1.5 hover:border-zinc-700"
             >
               <div className="flex items-center gap-3">
                 <div
-                  className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black ${
+                  className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-black ${
                     i === 0
                       ? "bg-yellow-500 text-black"
                       : i === 1
@@ -583,31 +583,31 @@ function SpecialRanking({
                   {i + 1}
                 </div>
 
-                <div className="relative h-8 w-8 overflow-hidden rounded-full border border-zinc-700">
+                <div className="relative h-7 w-7 overflow-hidden rounded-full border border-zinc-700">
                   <Image
                     src={getPlayerAvatar(p.steamid)}
                     alt={p.name}
                     fill
-                    sizes="32px"
+                    sizes="28px"
                     className="object-cover"
                   />
                 </div>
 
                 <span className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-violet-400 text-[10px] font-black text-violet-300">
+                  <span className="flex h-[18px] w-[18px] items-center justify-center rounded-full border border-violet-400 text-[9px] font-black text-violet-300">
                     {gc}
                   </span>
 
                   <Link
                     href={`/player/${p.steamid}`}
-                    className="font-semibold text-white hover:text-red-400"
+                    className="text-sm font-semibold text-white hover:text-red-400"
                   >
                     {p.name}
                   </Link>
                 </span>
               </div>
 
-              <span className="font-black text-yellow-400">{getText(p)}</span>
+              <span className="text-sm font-black text-yellow-400">{getText(p)}</span>
             </div>
           );
         })}

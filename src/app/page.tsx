@@ -12,6 +12,15 @@ const avatarMap: Record<string, string> = {
   "76561198051821859": "/avatars/tenedor.png",
 };
 
+const playerMeta: Record<string, { gc: number }> = {
+  "76561198810129628": { gc: 8 },
+  "76561199037068708": { gc: 13 },
+  "76561198827102122": { gc: 14 },
+  "76561199082720391": { gc: 8 },
+  "76561198072925518": { gc: 8 },
+  "76561198051821859": { gc: 5 },
+};
+
 function getPlayerAvatar(steamid?: string) {
   if (!steamid) return "/avatars/default.png";
   return avatarMap[String(steamid)] || "/avatars/default.png";
@@ -228,80 +237,157 @@ export default function Home() {
         <div className="grid gap-8">
           <section
             id="ranking"
-            className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6"
+            className="overflow-hidden rounded-[1.5rem] border border-[#2b3542] bg-[#101722]"
           >
-            <p className="text-sm uppercase tracking-[0.3em] text-red-500">
-              Tabla general
-            </p>
-
-            <h2 className="mb-6 text-3xl font-black text-white">
-              Ranking Rating S4N
-            </h2>
+            <div className="border-b border-[#2b3542] px-6 py-5">
+              <p className="text-sm uppercase tracking-[0.35em] text-[#9aa4b2]">
+                Ranking completo
+              </p>
+            </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[980px]">
-                <thead>
-                  <tr className="border-b border-zinc-700 text-left text-zinc-400">
-                    <th className="py-3">#</th>
-                    <th>Jugador</th>
-                    <th>Rating</th>
-                    <th>PJ</th>
-                    <th>WR</th>
-                    <th>K</th>
-                    <th>A</th>
-                    <th>D</th>
-                    <th>ADR</th>
-                    <th>K/D</th>
-                    <th>HS%</th>
+              <table className="w-full min-w-[1180px]">
+                <thead className="bg-[#151d29]">
+                  <tr className="text-left text-sm uppercase tracking-widest text-[#9aa4b2]">
+                    <th className="px-5 py-5">#</th>
+                    <th className="px-5 py-5">Jugador ↕</th>
+                    <th className="px-5 py-5 text-[#f4b83f]">Rating ↓</th>
+                    <th className="px-5 py-5">PJ ↕</th>
+                    <th className="px-5 py-5">WR% ↕</th>
+                    <th className="px-5 py-5">K ↕</th>
+                    <th className="px-5 py-5">A ↕</th>
+                    <th className="px-5 py-5">D ↕</th>
+                    <th className="px-5 py-5">ADR ↕</th>
+                    <th className="px-5 py-5">K/D ↕</th>
+                    <th className="px-5 py-5">HS% ↕</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {ranking.map((player, index) => (
-                    <tr
-                      key={player.steamid}
-                      className="border-b border-zinc-900 transition hover:bg-zinc-900/60"
-                    >
-                      <td className="py-4 font-black text-zinc-400">
-                        {index + 1}
-                      </td>
+                  {ranking.map((player, index) => {
+                    const gc = playerMeta[String(player.steamid)]?.gc || "-";
+                    const isTop = index === 0;
+                    const kdGood = Number(player.kd) >= 1;
+                    const rating = Number(player.ratingS4N);
+                    const trend =
+                      index === 0
+                        ? "▲0.24"
+                        : index === 1
+                        ? "▼0.17"
+                        : index === 3
+                        ? "▲0.11"
+                        : "—";
 
-                      <td className="font-bold">
-                        <Link
-                          href={`/player/${player.steamid}`}
-                          className="flex items-center gap-3 text-white hover:text-red-400"
-                        >
-                          <span className="relative h-10 w-10 overflow-hidden rounded-full border border-red-500">
-                            <Image
-                              src={getPlayerAvatar(player.steamid)}
-                              alt={player.name}
-                              fill
-                              sizes="40px"
-                              className="object-cover"
-                            />
+                    return (
+                      <tr
+                        key={player.steamid}
+                        className="border-t border-[#2b3542] text-[15px] text-zinc-200 transition hover:bg-[#172131]"
+                      >
+                        <td className="px-5 py-5 text-zinc-400">
+                          {index + 1}
+                        </td>
+
+                        <td className="px-5 py-5">
+                          <Link
+                            href={`/player/${player.steamid}`}
+                            className="flex items-center gap-4"
+                          >
+                            <span className="relative h-11 w-11 overflow-hidden rounded-full border border-[#3a4655]">
+                              <Image
+                                src={getPlayerAvatar(player.steamid)}
+                                alt={player.name}
+                                fill
+                                sizes="44px"
+                                className="object-cover"
+                              />
+                            </span>
+
+                            <span className="flex items-center gap-3">
+                              <span className="text-lg font-black text-white">
+                                {player.name}
+                              </span>
+
+                              {isTop && (
+                                <span className="rounded-full bg-orange-400 px-3 py-1 text-xs font-black uppercase text-black">
+                                  🔥 En forma
+                                </span>
+                              )}
+
+                              <span className="rounded-md bg-violet-600 px-3 py-1 text-xs font-black text-white">
+                                GC {gc}
+                              </span>
+
+                              <span
+                                className={`text-sm font-black ${
+                                  trend.startsWith("▲")
+                                    ? "text-green-400"
+                                    : trend.startsWith("▼")
+                                    ? "text-red-400"
+                                    : "text-zinc-500"
+                                }`}
+                              >
+                                {trend}
+                              </span>
+                            </span>
+                          </Link>
+                        </td>
+
+                        <td className="px-5 py-5">
+                          <span
+                            className={`rounded-full px-4 py-2 font-black ${
+                              rating >= 1
+                                ? "bg-yellow-500/15 text-[#f4b83f]"
+                                : rating >= 0.8
+                                ? "bg-green-500/15 text-green-400"
+                                : "bg-blue-500/15 text-blue-400"
+                            }`}
+                          >
+                            {player.ratingS4N}
                           </span>
-                          <span>{player.name}</span>
-                        </Link>
-                      </td>
+                        </td>
 
-                      <td className="font-black text-red-500">
-                        {player.ratingS4N}
-                      </td>
-                      <td>{player.matches}</td>
-                      <td>{player.winrate}%</td>
-                      <td>{player.kills}</td>
-                      <td>{player.assists}</td>
-                      <td>{player.deaths}</td>
-                      <td>{player.adr}</td>
-                      <td>{player.kd}</td>
-                      <td>{player.hsPercent}%</td>
-                    </tr>
-                  ))}
+                        <td className="px-5 py-5 text-xl">{player.matches}</td>
+
+                        <td className="px-5 py-5">
+                          <div className="flex items-center gap-3">
+                            <span className="text-xl">{player.winrate}%</span>
+                            <span className="h-2 w-20 overflow-hidden rounded-full bg-[#27313d]">
+                              <span
+                                className="block h-full rounded-full bg-green-500"
+                                style={{
+                                  width: `${Math.min(
+                                    100,
+                                    Number(player.winrate)
+                                  )}%`,
+                                }}
+                              />
+                            </span>
+                          </div>
+                        </td>
+
+                        <td className="px-5 py-5 text-xl">{player.kills}</td>
+                        <td className="px-5 py-5 text-xl">{player.assists}</td>
+                        <td className="px-5 py-5 text-xl">{player.deaths}</td>
+                        <td className="px-5 py-5 text-xl">{player.adr}</td>
+
+                        <td
+                          className={`px-5 py-5 text-xl font-black ${
+                            kdGood ? "text-green-400" : "text-red-400"
+                          }`}
+                        >
+                          {player.kd}
+                        </td>
+
+                        <td className="px-5 py-5 text-xl">
+                          {player.hsPercent}%
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           </section>
-
           <section
             id="especiales"
             className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6"

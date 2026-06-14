@@ -557,32 +557,61 @@ function SpecialRanking({
 }) {
   return (
     <div className="rounded-2xl border border-zinc-800 bg-black p-5">
-      <h3 className="mb-4 text-xl font-black text-white">{title}</h3>
+      <h3 className="mb-5 text-xl font-black text-white">{title}</h3>
 
-      {ranking.map((p, i) => (
-        <p key={p.steamid} className="mb-3 flex items-center gap-2">
-          <span className="w-5 text-zinc-500">{i + 1}.</span>
+      <div className="space-y-3">
+        {ranking.map((p, i) => {
+          const gc = playerMeta[String(p.steamid)]?.gc || "-";
 
-          <Link
-            href={`/player/${p.steamid}`}
-            className="flex items-center gap-2 text-red-500 hover:underline"
-          >
-            <span className="relative h-7 w-7 overflow-hidden rounded-full border border-red-500">
-              <Image
-                src={getPlayerAvatar(p.steamid)}
-                alt={p.name}
-                fill
-                sizes="28px"
-                className="object-cover"
-              />
-            </span>
+          return (
+            <div
+              key={p.steamid}
+              className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 hover:border-zinc-700"
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black ${
+                    i === 0
+                      ? "bg-yellow-500 text-black"
+                      : i === 1
+                      ? "bg-zinc-300 text-black"
+                      : i === 2
+                      ? "bg-orange-600 text-white"
+                      : "bg-zinc-800 text-zinc-300"
+                  }`}
+                >
+                  {i + 1}
+                </div>
 
-            {p.name}
-          </Link>
+                <div className="relative h-8 w-8 overflow-hidden rounded-full border border-zinc-700">
+                  <Image
+                    src={getPlayerAvatar(p.steamid)}
+                    alt={p.name}
+                    fill
+                    sizes="32px"
+                    className="object-cover"
+                  />
+                </div>
 
-          <span className="text-zinc-300">— {getText(p)}</span>
-        </p>
-      ))}
+                <span className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-violet-400 text-[10px] font-black text-violet-300">
+                    {gc}
+                  </span>
+
+                  <Link
+                    href={`/player/${p.steamid}`}
+                    className="font-semibold text-white hover:text-red-400"
+                  >
+                    {p.name}
+                  </Link>
+                </span>
+              </div>
+
+              <span className="font-black text-yellow-400">{getText(p)}</span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

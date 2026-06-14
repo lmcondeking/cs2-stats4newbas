@@ -237,29 +237,30 @@ export default function Home() {
         <div className="grid gap-8">
           <section
             id="ranking"
-            className="overflow-hidden rounded-[1.5rem] border border-[#2b3542] bg-[#101722]"
+            className="overflow-hidden rounded-[1.35rem] border border-[#263241] bg-[#101722]"
           >
-            <div className="border-b border-[#2b3542] px-6 py-5">
-              <p className="text-sm uppercase tracking-[0.35em] text-[#9aa4b2]">
+            <div className="border-b border-[#263241] px-5 py-4">
+              <p className="text-xs uppercase tracking-[0.35em] text-[#9aa4b2]">
                 Ranking completo
               </p>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1180px]">
+              <table className="w-full min-w-[1120px]">
                 <thead className="bg-[#151d29]">
-                  <tr className="text-left text-sm uppercase tracking-widest text-[#9aa4b2]">
-                    <th className="px-5 py-5">#</th>
-                    <th className="px-5 py-5">Jugador ↕</th>
-                    <th className="px-5 py-5 text-[#f4b83f]">Rating ↓</th>
-                    <th className="px-5 py-5">PJ ↕</th>
-                    <th className="px-5 py-5">WR% ↕</th>
-                    <th className="px-5 py-5">K ↕</th>
-                    <th className="px-5 py-5">A ↕</th>
-                    <th className="px-5 py-5">D ↕</th>
-                    <th className="px-5 py-5">ADR ↕</th>
-                    <th className="px-5 py-5">K/D ↕</th>
-                    <th className="px-5 py-5">HS% ↕</th>
+                  <tr className="text-left text-xs uppercase tracking-widest text-[#9aa4b2]">
+                    <th className="px-4 py-4">#</th>
+                    <th className="px-4 py-4">Jugador ↕</th>
+                    <th className="px-4 py-4 text-center">GC</th>
+                    <th className="px-4 py-4 text-[#f4b83f]">Rating ↓</th>
+                    <th className="px-4 py-4">PJ ↕</th>
+                    <th className="px-4 py-4">WR% ↕</th>
+                    <th className="px-4 py-4">K ↕</th>
+                    <th className="px-4 py-4">A ↕</th>
+                    <th className="px-4 py-4">D ↕</th>
+                    <th className="px-4 py-4">ADR ↕</th>
+                    <th className="px-4 py-4">K/D ↕</th>
+                    <th className="px-4 py-4">HS% ↕</th>
                   </tr>
                 </thead>
 
@@ -281,44 +282,40 @@ export default function Home() {
                     return (
                       <tr
                         key={player.steamid}
-                        className="border-t border-[#2b3542] text-[15px] text-zinc-200 transition hover:bg-[#172131]"
+                        className="border-t border-[#263241] text-sm text-zinc-200 transition hover:bg-[#172131]"
                       >
-                        <td className="px-5 py-5 text-zinc-400">
+                        <td className="px-4 py-4 text-zinc-400">
                           {index + 1}
                         </td>
 
-                        <td className="px-5 py-5">
+                        <td className="px-4 py-4">
                           <Link
                             href={`/player/${player.steamid}`}
-                            className="flex items-center gap-4"
+                            className="flex items-center gap-3"
                           >
-                            <span className="relative h-11 w-11 overflow-hidden rounded-full border border-[#3a4655]">
+                            <span className="relative h-9 w-9 overflow-hidden rounded-full border border-[#3a4655]">
                               <Image
                                 src={getPlayerAvatar(player.steamid)}
                                 alt={player.name}
                                 fill
-                                sizes="44px"
+                                sizes="36px"
                                 className="object-cover"
                               />
                             </span>
 
-                            <span className="flex items-center gap-3">
-                              <span className="text-lg font-black text-white">
+                            <span className="flex min-w-[250px] items-center gap-2">
+                              <span className="text-base font-black text-white">
                                 {player.name}
                               </span>
 
                               {isTop && (
-                                <span className="rounded-full bg-orange-400 px-3 py-1 text-xs font-black uppercase text-black">
+                                <span className="rounded-full bg-orange-400 px-2 py-1 text-[10px] font-black uppercase text-black">
                                   🔥 En forma
                                 </span>
                               )}
 
-                              <span className="rounded-md bg-violet-600 px-3 py-1 text-xs font-black text-white">
-                                GC {gc}
-                              </span>
-
                               <span
-                                className={`text-sm font-black ${
+                                className={`text-xs font-black ${
                                   trend.startsWith("▲")
                                     ? "text-green-400"
                                     : trend.startsWith("▼")
@@ -332,9 +329,18 @@ export default function Home() {
                           </Link>
                         </td>
 
-                        <td className="px-5 py-5">
+                        <td className="px-4 py-4 text-center">
+                          <span className="inline-flex items-center gap-2 rounded-md bg-violet-600/90 px-3 py-1 text-xs font-black text-white shadow-lg shadow-violet-900/30">
+                            <span className="relative flex h-4 w-4 items-center justify-center rounded-full bg-violet-300/30">
+                              <span className="h-2 w-2 rounded-full bg-violet-100 shadow-[0_0_8px_rgba(221,214,254,0.9)]" />
+                            </span>
+                            {gc}
+                          </span>
+                        </td>
+
+                        <td className="px-4 py-4">
                           <span
-                            className={`rounded-full px-4 py-2 font-black ${
+                            className={`rounded-full px-3 py-1.5 text-sm font-black ${
                               rating >= 1
                                 ? "bg-yellow-500/15 text-[#f4b83f]"
                                 : rating >= 0.8
@@ -346,12 +352,12 @@ export default function Home() {
                           </span>
                         </td>
 
-                        <td className="px-5 py-5 text-xl">{player.matches}</td>
+                        <td className="px-4 py-4 text-base">{player.matches}</td>
 
-                        <td className="px-5 py-5">
+                        <td className="px-4 py-4">
                           <div className="flex items-center gap-3">
-                            <span className="text-xl">{player.winrate}%</span>
-                            <span className="h-2 w-20 overflow-hidden rounded-full bg-[#27313d]">
+                            <span className="text-base">{player.winrate}%</span>
+                            <span className="h-2 w-16 overflow-hidden rounded-full bg-[#27313d]">
                               <span
                                 className="block h-full rounded-full bg-green-500"
                                 style={{
@@ -365,20 +371,20 @@ export default function Home() {
                           </div>
                         </td>
 
-                        <td className="px-5 py-5 text-xl">{player.kills}</td>
-                        <td className="px-5 py-5 text-xl">{player.assists}</td>
-                        <td className="px-5 py-5 text-xl">{player.deaths}</td>
-                        <td className="px-5 py-5 text-xl">{player.adr}</td>
+                        <td className="px-4 py-4 text-base">{player.kills}</td>
+                        <td className="px-4 py-4 text-base">{player.assists}</td>
+                        <td className="px-4 py-4 text-base">{player.deaths}</td>
+                        <td className="px-4 py-4 text-base">{player.adr}</td>
 
                         <td
-                          className={`px-5 py-5 text-xl font-black ${
+                          className={`px-4 py-4 text-base font-black ${
                             kdGood ? "text-green-400" : "text-red-400"
                           }`}
                         >
                           {player.kd}
                         </td>
 
-                        <td className="px-5 py-5 text-xl">
+                        <td className="px-4 py-4 text-base">
                           {player.hsPercent}%
                         </td>
                       </tr>
@@ -388,6 +394,7 @@ export default function Home() {
               </table>
             </div>
           </section>
+
           <section
             id="especiales"
             className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6"

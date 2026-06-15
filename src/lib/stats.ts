@@ -56,6 +56,24 @@ type Player = {
 
   weapons?: Record<string, number>;
   favoriteWeapon?: FavoriteWeapon;
+
+  recentMatches?: {
+    demoFile: string;
+    map: string;
+    rounds: number;
+    result: "WIN" | "LOSS" | "N/A";
+    kills: number;
+    assists: number;
+    deaths: number;
+    adr: number;
+    kd: number;
+    ratingS4N: number;
+  }[];
+  recentResults?: ("WIN" | "LOSS" | "N/A")[];
+  recentRating?: number;
+  previousRating?: number;
+  formDelta?: number;
+  formStatus?: "EN FORMA" | "ESTABLE" | "EN BAJA";
 };
 
 type Match = {
@@ -82,6 +100,40 @@ const allowedSteamIds = [
 ];
 
 const RATING_SCALE = 1.3;
+
+function roundNumber(value: number, decimals = 2) {
+  return Number(value.toFixed(decimals));
+}
+
+function average(values: number[]) {
+  if (values.length === 0) return 0;
+  return values.reduce((acc, value) => acc + value, 0) / values.length;
+}
+
+function calculateRatingS4N({
+  kd,
+  adr,
+  hsPercent,
+  entryRatio,
+  clutches,
+  rounds,
+}: {
+  kd: number;
+  adr: number;
+  hsPercent: number;
+  entryRatio: number;
+  clutches: number;
+  rounds: number;
+}) {
+  const rawRatingS4N =
+    0.4 * kd +
+    0.25 * (adr / 100) +
+    0.15 * (hsPercent / 100) +
+    0.1 * (entryRatio / 2) +
+    0.1 * (clutches / Math.max(1, rounds));
+
+  return rawRatingS4N * RATING_SCALE;
+}
 
 export function getDashboardStats() {
   const matchesFolder = path.join(process.cwd(), "data", "matches");
@@ -161,6 +213,7 @@ export function getDashboardStats() {
 
           weapons: {},
           mapStats: {},
+          recentMatches: [],
         };
       }
 
@@ -201,6 +254,52 @@ export function getDashboardStats() {
         ((player.kastPercent || 0) / 100) * (match.rounds || 0);
 
       total.kastRoundsEstimated += playerKastRounds;
+
+      const matchKd =
+        (player.deaths || 0) === 0
+          ? player.kills || 0
+          : (player.kills || 0) / (player.deaths || 1);
+
+      const matchAdr =
+        match.rounds === 0 ? 0 : (player.damage || 0) / (match.rounds || 1);
+
+      const matchHsPercent =
+        (player.kills || 0) === 0
+          ? 0
+          : ((player.headshots || 0) / (player.kills || 1)) * 100;
+
+      const matchEntryRatio =
+        (player.entryDeaths || 0) === 0
+          ? player.entryKills || 0
+          : (player.entryKills || 0) / (player.entryDeaths || 1);
+
+      const matchRatingS4N = calculateRatingS4N({
+        kd: matchKd,
+        adr: matchAdr,
+        hsPercent: matchHsPercent,
+        entryRatio: matchEntryRatio,
+        clutches: player.totalClutches || 0,
+        rounds: match.rounds || 0,
+      });
+
+      const result = match.winnerTeam
+        ? player.team === match.winnerTeam
+          ? "WIN"
+          : "LOSS"
+        : "N/A";
+
+      total.recentMatches.push({
+        demoFile: match.demoFile,
+        map: match.map,
+        rounds: match.rounds || 0,
+        result,
+        kills: player.kills || 0,
+        assists: player.assists || 0,
+        deaths: player.deaths || 0,
+        adr: roundNumber(matchAdr),
+        kd: roundNumber(matchKd),
+        ratingS4N: roundNumber(matchRatingS4N),
+      });
 
       if (player.weapons) {
         Object.entries(player.weapons).forEach(([weapon, kills]) => {
@@ -329,14 +428,29 @@ export function getDashboardStats() {
         [...mapStats].sort((a: any, b: any) => a.ratingS4N - b.ratingS4N)[0] ||
         null;
 
-      const rawRatingS4N =
-        0.4 * kd +
-        0.25 * (adr / 100) +
-        0.15 * (hsPercent / 100) +
-        0.1 * (entryRatio / 2) +
-        0.1 * (player.totalClutches / Math.max(1, player.rounds));
+      const ratingS4N = calculateRatingS4N({
+        kd,
+        adr,
+        hsPercent,
+        entryRatio,
+        clutches: player.totalClutches,
+        rounds: player.rounds,
+      });
 
-      const ratingS4N = rawRatingS4N * RATING_SCALE;
+      const recentMatches = [...player.recentMatches];
+      const lastFiveRatings = recentMatches
+        .slice(-5)
+        .map((match: any) => Number(match.ratingS4N || 0));
+      const previousFiveRatings = recentMatches
+        .slice(-10, -5)
+        .map((match: any) => Number(match.ratingS4N || 0));
+
+      const recentRating = average(lastFiveRatings);
+      const previousRating =
+        previousFiveRatings.length > 0 ? average(previousFiveRatings) : ratingS4N;
+      const formDelta = recentRating - previousRating;
+      const formStatus =
+        formDelta >= 0.1 ? "EN FORMA" : formDelta <= -0.1 ? "EN BAJA" : "ESTABLE";
 
       return {
         ...player,
@@ -362,7 +476,14 @@ export function getDashboardStats() {
         bestMap,
         worstMap,
 
-        ratingS4N: Number(ratingS4N.toFixed(2)),
+        recentMatches,
+        recentResults: recentMatches.map((match: any) => match.result),
+        recentRating: roundNumber(recentRating),
+        previousRating: roundNumber(previousRating),
+        formDelta: roundNumber(formDelta),
+        formStatus,
+
+        ratingS4N: roundNumber(ratingS4N),
       };
     })
     .sort((a, b) => b.ratingS4N - a.ratingS4N);

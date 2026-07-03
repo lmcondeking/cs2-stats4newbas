@@ -12,18 +12,26 @@ const avatarMap: Record<string, string> = {
   "76561198051821859": "/avatars/tenedor.png",
 };
 
-const playerMeta: Record<string, { gc: number }> = {
-  "76561198810129628": { gc: 8 },
-  "76561199037068708": { gc: 13 },
-  "76561198827102122": { gc: 14 },
-  "76561199082720391": { gc: 8 },
-  "76561198072925518": { gc: 8 },
-  "76561198051821859": { gc: 5 },
-};
-
 function getPlayerAvatar(steamid?: string) {
   if (!steamid) return "/avatars/default.png";
   return avatarMap[String(steamid)] || "/avatars/default.png";
+}
+
+function getPlayerGc(player: any) {
+  return player?.gcLevel || "-";
+}
+
+function getTrendLabel(player: any) {
+  const delta = Number(player?.formDelta || 0);
+  if (Math.abs(delta) < 0.01) return "—";
+  return `${delta > 0 ? "▲" : "▼"}${Math.abs(delta).toFixed(2)}`;
+}
+
+function getTrendClass(player: any) {
+  const delta = Number(player?.formDelta || 0);
+  if (delta > 0) return "text-green-400";
+  if (delta < 0) return "text-red-400";
+  return "text-zinc-500";
 }
 
 export default function Home() {
@@ -266,18 +274,11 @@ export default function Home() {
 
                 <tbody>
                   {ranking.map((player, index) => {
-                    const gc = playerMeta[String(player.steamid)]?.gc || "-";
-                    const isTop = index === 0;
+                    const gc = getPlayerGc(player);
+                    const isInForm = player.formStatus === "EN FORMA";
                     const kdGood = Number(player.kd) >= 1;
                     const rating = Number(player.ratingS4N);
-                    const trend =
-                      index === 0
-                        ? "▲0.24"
-                        : index === 1
-                        ? "▼0.17"
-                        : index === 3
-                        ? "▲0.11"
-                        : "—";
+                    const trend = getTrendLabel(player);
 
                     return (
                       <tr
@@ -308,20 +309,14 @@ export default function Home() {
                                 {player.name}
                               </span>
 
-                              {isTop && (
+                              {isInForm && (
                                 <span className="rounded-full bg-orange-400 px-2 py-1 text-[10px] font-black uppercase text-black">
                                   🔥 En forma
                                 </span>
                               )}
 
                               <span
-                                className={`text-xs font-black ${
-                                  trend.startsWith("▲")
-                                    ? "text-green-400"
-                                    : trend.startsWith("▼")
-                                    ? "text-red-400"
-                                    : "text-zinc-500"
-                                }`}
+                                className={`text-xs font-black ${getTrendClass(player)}`}
                               >
                                 {trend}
                               </span>
@@ -561,7 +556,7 @@ function SpecialRanking({
 
       <div className="space-y-2">
         {ranking.map((p, i) => {
-          const gc = playerMeta[String(p.steamid)]?.gc || "-";
+          const gc = getPlayerGc(p);
 
           return (
             <div

@@ -74,6 +74,7 @@ type Player = {
   previousRating?: number;
   formDelta?: number;
   formStatus?: "EN FORMA" | "ESTABLE" | "EN BAJA";
+  gcLevel?: number;
 };
 
 type Match = {
@@ -108,6 +109,40 @@ function roundNumber(value: number, decimals = 2) {
 function average(values: number[]) {
   if (values.length === 0) return 0;
   return values.reduce((acc, value) => acc + value, 0) / values.length;
+}
+
+const circledNumberMap: Record<string, number> = {
+  "①": 1,
+  "②": 2,
+  "③": 3,
+  "④": 4,
+  "⑤": 5,
+  "⑥": 6,
+  "⑦": 7,
+  "⑧": 8,
+  "⑨": 9,
+  "⑩": 10,
+  "⑪": 11,
+  "⑫": 12,
+  "⑬": 13,
+  "⑭": 14,
+  "⑮": 15,
+  "⑯": 16,
+  "⑰": 17,
+  "⑱": 18,
+  "⑲": 19,
+  "⑳": 20,
+};
+
+function getGcLevelFromName(name: string) {
+  for (const [symbol, level] of Object.entries(circledNumberMap)) {
+    if (name.includes(symbol)) return level;
+  }
+
+  const gcMatch = name.match(/(?:^|\s)GC\s*(\d{1,2})(?:\s|$)/i);
+  if (gcMatch) return Number(gcMatch[1]);
+
+  return null;
 }
 
 function calculateRatingS4N({
@@ -175,6 +210,7 @@ export function getDashboardStats() {
         totals[player.steamid] = {
           name: player.name,
           steamid: player.steamid,
+          gcLevel: getGcLevelFromName(player.name),
 
           matches: 0,
           wins: 0,
@@ -220,6 +256,7 @@ export function getDashboardStats() {
       const total = totals[player.steamid];
 
       total.name = player.name;
+      total.gcLevel = getGcLevelFromName(player.name) ?? total.gcLevel;
       total.matches++;
 
       total.kills += player.kills || 0;
@@ -455,6 +492,7 @@ export function getDashboardStats() {
       return {
         ...player,
         diff: player.kills - player.deaths,
+        gcLevel: player.gcLevel,
 
         kd: Number(kd.toFixed(2)),
         adr: Number(adr.toFixed(2)),

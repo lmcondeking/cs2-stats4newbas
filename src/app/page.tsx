@@ -34,6 +34,11 @@ function getTrendClass(player: any) {
   return "text-zinc-500";
 }
 
+function formatMapName(map?: string) {
+  if (!map) return "N/A";
+  return String(map).replace("de_", "").toUpperCase();
+}
+
 export default function Home() {
   const { matches, ranking, mvpLeader, entryLeader, clutchLeader, baitLeader } =
     getDashboardStats();
@@ -42,96 +47,159 @@ export default function Home() {
   const totalKills = ranking.reduce((acc, player) => acc + player.kills, 0);
   const topPlayer = ranking[0];
 
+  const latestMatches = matches.slice().reverse().slice(0, 10);
+
   const leaderCards = [
     {
       title: "MVP Histórico",
+      subtitle: "Más veces jugador clave",
       icon: "🏆",
       player: mvpLeader,
-      stat: `${mvpLeader?.mvps || 0} MVPs`,
-      border: "border-yellow-500/60",
+      stat: `${mvpLeader?.mvps || 0}`,
+      label: "MVPs",
+      border: "border-yellow-500/45",
+      accent: "text-yellow-400",
     },
     {
       title: "Entry King",
+      subtitle: "Abre rondas y genera ventaja",
       icon: "⚔️",
       player: entryLeader,
-      stat: `${entryLeader?.entryKills || 0} entries`,
-      border: "border-red-500/60",
+      stat: `${entryLeader?.entryKills || 0}`,
+      label: "entries",
+      border: "border-red-500/45",
+      accent: "text-red-400",
     },
     {
       title: "Clutch King",
+      subtitle: "Rey de situaciones límite",
       icon: "👑",
       player: clutchLeader,
-      stat: `${clutchLeader?.totalClutches || 0} clutches`,
-      border: "border-purple-500/60",
+      stat: `${clutchLeader?.totalClutches || 0}`,
+      label: "clutches",
+      border: "border-purple-500/45",
+      accent: "text-purple-400",
     },
     {
       title: "Rey del Bait",
+      subtitle: "El especialista en sobrevivir",
       icon: "🐀",
       player: baitLeader,
-      stat: `${baitLeader?.baitRounds || 0} bait rounds`,
-      border: "border-orange-500/60",
+      stat: `${baitLeader?.baitRounds || 0}`,
+      label: "bait rounds",
+      border: "border-orange-500/45",
+      accent: "text-orange-400",
     },
   ];
 
   return (
-    <main className="min-h-screen bg-[#050505] px-6 py-8 text-white">
-      <section className="mx-auto max-w-7xl">
-        <section className="relative mb-10 overflow-hidden rounded-[2rem] border border-yellow-500/30 bg-gradient-to-br from-zinc-950 via-black to-zinc-900 p-8 shadow-2xl shadow-red-950/20">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(239,68,68,0.25),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(234,179,8,0.18),transparent_30%)]" />
+    <main className="min-h-screen bg-[#060a10] px-5 py-5 text-white">
+      <section className="mx-auto max-w-6xl">
+        <header className="sticky top-0 z-20 -mx-5 mb-5 border-b border-[#1f2a38] bg-[#060a10]/90 px-5 py-3 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl items-center justify-between">
+            <Link href="/" className="text-2xl font-black tracking-tight">
+              <span className="text-red-500">S4</span>
+              <span className="text-yellow-400">N</span>
+            </Link>
 
-          <div className="relative grid gap-8 md:grid-cols-[1.4fr_0.8fr] md:items-center">
+            <nav className="flex items-center gap-6 text-sm font-bold text-zinc-400">
+              <a href="#ranking" className="border-b-2 border-yellow-400 pb-2 text-white">
+                Ranking
+              </a>
+              <a href="#especiales" className="transition hover:text-white">
+                Especiales
+              </a>
+              <a href="#partidas" className="transition hover:text-white">
+                Partidas
+              </a>
+              <a href="#subir-demo" className="transition hover:text-white">
+                Subir Demo
+              </a>
+            </nav>
+
+            <div className="hidden items-center gap-3 md:flex">
+              <span className="rounded-lg border border-red-500/35 bg-red-500/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-red-400">
+                Temporada 2026
+              </span>
+
+              {topPlayer && (
+                <div className="relative h-9 w-9 overflow-hidden rounded-full border border-yellow-500/60">
+                  <Image
+                    src={getPlayerAvatar(topPlayer.steamid)}
+                    alt={topPlayer.name}
+                    fill
+                    sizes="36px"
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        <section className="relative mb-5 overflow-hidden rounded-[1.6rem] border border-[#263241] bg-[#101722] shadow-2xl shadow-black/35">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(239,68,68,0.22),transparent_30%),radial-gradient(circle_at_85%_20%,rgba(245,158,11,0.14),transparent_34%)]" />
+          <div className="absolute inset-y-0 right-0 hidden w-1/2 bg-gradient-to-l from-red-950/40 to-transparent md:block" />
+
+          <div className="relative grid gap-5 p-6 md:grid-cols-[1.4fr_0.75fr] md:items-stretch">
             <div>
-              <p className="mb-4 inline-flex rounded-full border border-red-500/40 bg-red-500/10 px-4 py-2 text-xs font-black uppercase tracking-[0.35em] text-red-400">
-                Temporada privada 2026
+              <p className="mb-3 inline-flex rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.25em] text-red-400">
+                Liga privada de amigos
               </p>
 
-              <h1 className="text-6xl font-black tracking-tight text-white md:text-7xl">
+              <h1 className="text-5xl font-black leading-none tracking-tight text-white md:text-6xl">
                 CS2
-                <span className="block bg-gradient-to-r from-red-500 via-yellow-400 to-red-600 bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-r from-red-500 via-yellow-400 to-orange-500 bg-clip-text text-transparent">
                   Stats4Newbas
                 </span>
               </h1>
 
-              <p className="mt-5 max-w-2xl text-xl text-zinc-300">
+              <p className="mt-4 max-w-2xl text-base leading-relaxed text-zinc-300">
                 Estadísticas reales leídas desde demos de CS2. Ranking, perfiles,
-                evolución, armas, mapas y premios internos de la liga.
+                evolución, mapas y premios internos de la liga.
               </p>
 
-              <div className="mt-8 grid gap-4 sm:grid-cols-4">
-                <SeasonStat title="Partidas" value={matches.length} />
-                <SeasonStat title="Jugadores" value={ranking.length} />
-                <SeasonStat title="Rondas" value={totalRounds} />
-                <SeasonStat title="Kills" value={totalKills} />
+              <div className="mt-5 grid gap-3 sm:grid-cols-4">
+                <SeasonStat icon="🎮" title="Partidas" value={matches.length} />
+                <SeasonStat icon="👥" title="Jugadores" value={ranking.length} />
+                <SeasonStat icon="🎯" title="Rondas" value={totalRounds} />
+                <SeasonStat icon="💀" title="Kills" value={totalKills} />
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-zinc-800 bg-black/60 p-6 text-center">
-              <p className="text-sm uppercase tracking-[0.3em] text-zinc-400">
+            <div className="rounded-[1.35rem] border border-[#263241] bg-black/45 p-5 text-center">
+              <p className="text-[11px] font-black uppercase tracking-[0.3em] text-yellow-400">
                 Season Leader
               </p>
 
               {topPlayer ? (
                 <Link href={`/player/${topPlayer.steamid}`}>
-                  <div className="relative mx-auto mt-5 h-32 w-32 overflow-hidden rounded-full border-4 border-yellow-500 shadow-xl shadow-yellow-500/20">
+                  <div className="relative mx-auto mt-4 h-24 w-24 overflow-hidden rounded-full border-4 border-yellow-500 shadow-xl shadow-yellow-500/15">
                     <Image
                       src={getPlayerAvatar(topPlayer.steamid)}
                       alt={topPlayer.name}
                       fill
-                      sizes="128px"
+                      sizes="96px"
                       className="object-cover"
                       priority
                     />
                   </div>
 
-                  <h2 className="mt-5 text-3xl font-black text-white">
-                    {topPlayer.name}
-                  </h2>
+                  <div className="mt-4 flex items-center justify-center gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full border border-violet-400 text-[11px] font-black text-violet-300">
+                      {getPlayerGc(topPlayer)}
+                    </span>
+                    <h2 className="text-xl font-black text-white">
+                      {topPlayer.name}
+                    </h2>
+                  </div>
 
-                  <p className="mt-3 text-6xl font-black text-yellow-400">
+                  <p className="mt-2 text-5xl font-black text-yellow-400">
                     {topPlayer.ratingS4N}
                   </p>
 
-                  <p className="mt-2 text-zinc-400">
+                  <p className="mt-2 text-sm text-zinc-400">
                     K/D {topPlayer.kd} · ADR {topPlayer.adr}
                   </p>
                 </Link>
@@ -142,112 +210,118 @@ export default function Home() {
           </div>
         </section>
 
-        <div className="mb-12 grid gap-4 md:grid-cols-4">
-          <NavButton href="#ranking" label="Ranking" active />
-          <NavButton href="#especiales" label="Especiales" />
-          <NavButton href="#partidas" label="Partidas" />
-          <NavButton href="#subir-demo" label="Subir Demo" />
+        <div className="mb-5 grid gap-3 md:grid-cols-4">
+          <NavButton href="#ranking" label="Ranking" icon="🏆" active />
+          <NavButton href="#especiales" label="Especiales" icon="⚔️" />
+          <NavButton href="#partidas" label="Partidas" icon="☰" />
+          <NavButton href="#subir-demo" label="Subir Demo" icon="☁️" />
         </div>
 
-        <section className="mb-14">
-          <p className="text-sm uppercase tracking-[0.3em] text-yellow-500">
+        <section className="mb-5 rounded-[1.35rem] border border-[#263241] bg-[#101722] p-5">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
             Podio oficial
           </p>
 
-          <h2 className="mb-7 text-4xl font-black text-white">
+          <h2 className="mt-1 text-2xl font-black text-white">
             Top 3 Rating S4N
           </h2>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="mt-4 grid gap-4 md:grid-cols-3">
             {ranking.slice(0, 3).map((player, index) => (
               <Link
                 key={player.steamid}
                 href={`/player/${player.steamid}`}
-                className={`group relative overflow-hidden rounded-[2rem] border bg-zinc-950 p-6 text-center shadow-2xl transition hover:-translate-y-1 ${
+                className={`group relative overflow-hidden rounded-[1.2rem] border bg-black/35 p-4 text-center transition hover:-translate-y-0.5 ${
                   index === 0
-                    ? "border-yellow-500/70 shadow-yellow-500/10"
+                    ? "border-yellow-500/65 shadow-lg shadow-yellow-500/10 md:order-2"
                     : index === 1
-                    ? "border-zinc-400/60 shadow-zinc-500/10"
-                    : "border-orange-700/70 shadow-orange-500/10"
+                    ? "border-zinc-400/45 md:order-1"
+                    : "border-orange-600/55 md:order-3"
                 }`}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 transition group-hover:opacity-100" />
 
-                <p className="relative mb-3 text-5xl">
+                <p className="relative text-3xl">
                   {index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉"}
                 </p>
 
-                <div className="relative mx-auto mb-5 h-28 w-28 overflow-hidden rounded-full border-4 border-red-500/70">
+                <div className="relative mx-auto mt-2 h-20 w-20 overflow-hidden rounded-full border-2 border-red-500/70">
                   <Image
                     src={getPlayerAvatar(player.steamid)}
                     alt={player.name}
                     fill
-                    sizes="112px"
+                    sizes="80px"
                     className="object-cover"
                   />
                 </div>
 
-                <h3 className="relative text-2xl font-black text-white">
-                  {player.name}
-                </h3>
+                <div className="relative mt-3 flex items-center justify-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-violet-400 text-[10px] font-black text-violet-300">
+                    {getPlayerGc(player)}
+                  </span>
+                  <h3 className="text-lg font-black text-white">
+                    {player.name}
+                  </h3>
+                </div>
 
-                <p className="relative mt-3 text-5xl font-black text-red-500">
+                <p className="relative mt-2 text-3xl font-black text-yellow-400">
                   {player.ratingS4N}
                 </p>
 
-                <div className="relative mt-5 grid grid-cols-3 gap-2 text-sm">
-                  <PodioMini title="K/D" value={player.kd} />
-                  <PodioMini title="ADR" value={player.adr} />
-                  <PodioMini title="WR" value={`${player.winrate}%`} />
-                </div>
+                <p className="relative mt-1 text-xs text-zinc-400">
+                  K/D {player.kd} · ADR {player.adr} · WR {player.winrate}%
+                </p>
               </Link>
             ))}
           </div>
         </section>
 
-        <div className="mb-16 grid gap-6 md:grid-cols-4">
+        <div className="mb-5 grid gap-4 md:grid-cols-4">
           {leaderCards.map((card) => (
             <Link
               key={card.title}
               href={card.player ? `/player/${card.player.steamid}` : "#"}
-              className={`rounded-[1.6rem] border ${card.border} bg-zinc-950 p-6 shadow-xl transition hover:-translate-y-1 hover:bg-zinc-900`}
+              className={`rounded-[1.15rem] border ${card.border} bg-[#101722] p-4 transition hover:-translate-y-0.5 hover:bg-[#131d2a]`}
             >
-              <div className="mb-5 flex items-center justify-between">
-                <span className="text-3xl">{card.icon}</span>
-                <span className="rounded-full bg-zinc-900 px-3 py-1 text-xs font-bold text-zinc-400">
-                  Leader
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-2xl">{card.icon}</span>
+                <span className={`text-2xl font-black ${card.accent}`}>
+                  {card.stat}
                 </span>
               </div>
 
-              <div className="relative mb-4 h-16 w-16 overflow-hidden rounded-full border border-red-500">
-                <Image
-                  src={getPlayerAvatar(card.player?.steamid)}
-                  alt={card.player?.name || "Sin datos"}
-                  fill
-                  sizes="64px"
-                  className="object-cover"
-                />
-              </div>
-
-              <p className="text-sm text-zinc-400">{card.title}</p>
-
-              <h2 className="mt-1 text-2xl font-black text-white">
-                {card.player?.name || "Sin datos"}
-              </h2>
-
-              <p className="mt-3 text-lg font-black text-red-500">
-                {card.stat}
+              <p className="text-xs uppercase tracking-widest text-zinc-500">
+                {card.title}
               </p>
+
+              <div className="mt-2 flex items-center gap-3">
+                <div className="relative h-9 w-9 overflow-hidden rounded-full border border-[#334155]">
+                  <Image
+                    src={getPlayerAvatar(card.player?.steamid)}
+                    alt={card.player?.name || "Sin datos"}
+                    fill
+                    sizes="36px"
+                    className="object-cover"
+                  />
+                </div>
+
+                <div>
+                  <h2 className="text-base font-black text-white">
+                    {card.player?.name || "Sin datos"}
+                  </h2>
+                  <p className="text-xs text-zinc-500">{card.label}</p>
+                </div>
+              </div>
             </Link>
           ))}
         </div>
 
-        <div className="grid gap-8">
+        <div className="grid gap-5">
           <section
             id="ranking"
-            className="overflow-hidden rounded-[1.35rem] border border-[#263241] bg-[#101722]"
+            className="overflow-hidden rounded-[1.25rem] border border-[#263241] bg-[#101722]"
           >
-            <div className="border-b border-[#263241] px-5 py-4">
+            <div className="border-b border-[#263241] px-5 py-3">
               <p className="text-xs uppercase tracking-[0.35em] text-[#9aa4b2]">
                 Ranking completo
               </p>
@@ -256,19 +330,19 @@ export default function Home() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1120px]">
                 <thead className="bg-[#151d29]">
-                  <tr className="text-left text-xs uppercase tracking-widest text-[#9aa4b2]">
-                    <th className="px-4 py-4">#</th>
-                    <th className="px-4 py-4">Jugador ↕</th>
-                    <th className="px-4 py-4 text-center">GC</th>
-                    <th className="px-4 py-4 text-[#f4b83f]">Rating ↓</th>
-                    <th className="px-4 py-4">PJ ↕</th>
-                    <th className="px-4 py-4">WR% ↕</th>
-                    <th className="px-4 py-4">K ↕</th>
-                    <th className="px-4 py-4">A ↕</th>
-                    <th className="px-4 py-4">D ↕</th>
-                    <th className="px-4 py-4">ADR ↕</th>
-                    <th className="px-4 py-4">K/D ↕</th>
-                    <th className="px-4 py-4">HS% ↕</th>
+                  <tr className="text-left text-[11px] uppercase tracking-widest text-[#9aa4b2]">
+                    <th className="px-4 py-3">#</th>
+                    <th className="px-4 py-3">Jugador ↕</th>
+                    <th className="px-4 py-3 text-center">GC</th>
+                    <th className="px-4 py-3 text-[#f4b83f]">Rating ↓</th>
+                    <th className="px-4 py-3">PJ ↕</th>
+                    <th className="px-4 py-3">WR% ↕</th>
+                    <th className="px-4 py-3">K ↕</th>
+                    <th className="px-4 py-3">A ↕</th>
+                    <th className="px-4 py-3">D ↕</th>
+                    <th className="px-4 py-3">ADR ↕</th>
+                    <th className="px-4 py-3">K/D ↕</th>
+                    <th className="px-4 py-3">HS% ↕</th>
                   </tr>
                 </thead>
 
@@ -285,38 +359,38 @@ export default function Home() {
                         key={player.steamid}
                         className="border-t border-[#263241] text-sm text-zinc-200 transition hover:bg-[#172131]"
                       >
-                        <td className="px-4 py-4 text-zinc-400">
+                        <td className="px-4 py-3 text-zinc-400">
                           {index + 1}
                         </td>
 
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-3">
                           <Link
                             href={`/player/${player.steamid}`}
                             className="flex items-center gap-3"
                           >
-                            <span className="relative h-9 w-9 overflow-hidden rounded-full border border-[#3a4655]">
+                            <span className="relative h-8 w-8 overflow-hidden rounded-full border border-[#3a4655]">
                               <Image
                                 src={getPlayerAvatar(player.steamid)}
                                 alt={player.name}
                                 fill
-                                sizes="36px"
+                                sizes="32px"
                                 className="object-cover"
                               />
                             </span>
 
                             <span className="flex min-w-[250px] items-center gap-2">
-                              <span className="text-base font-black text-white">
+                              <span className="text-[15px] font-black text-white">
                                 {player.name}
                               </span>
 
                               {isInForm && (
-                                <span className="rounded-full bg-orange-400 px-2 py-1 text-[10px] font-black uppercase text-black">
+                                <span className="rounded-full bg-orange-400 px-2 py-0.5 text-[9px] font-black uppercase text-black">
                                   🔥 En forma
                                 </span>
                               )}
 
                               <span
-                                className={`text-xs font-black ${getTrendClass(player)}`}
+                                className={`text-[11px] font-black ${getTrendClass(player)}`}
                               >
                                 {trend}
                               </span>
@@ -324,18 +398,18 @@ export default function Home() {
                           </Link>
                         </td>
 
-                        <td className="px-4 py-4 text-center">
-                          <span className="inline-flex items-center gap-2 rounded-md bg-violet-600/90 px-3 py-1 text-xs font-black text-white shadow-lg shadow-violet-900/30">
-                            <span className="relative flex h-4 w-4 items-center justify-center rounded-full bg-violet-300/30">
-                              <span className="h-2 w-2 rounded-full bg-violet-100 shadow-[0_0_8px_rgba(221,214,254,0.9)]" />
+                        <td className="px-4 py-3 text-center">
+                          <span className="inline-flex items-center gap-2 rounded-md bg-violet-600/90 px-3 py-1 text-[11px] font-black text-white shadow-lg shadow-violet-900/30">
+                            <span className="relative flex h-3.5 w-3.5 items-center justify-center rounded-full bg-violet-300/30">
+                              <span className="h-1.5 w-1.5 rounded-full bg-violet-100 shadow-[0_0_8px_rgba(221,214,254,0.9)]" />
                             </span>
                             {gc}
                           </span>
                         </td>
 
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-3">
                           <span
-                            className={`rounded-full px-3 py-1.5 text-sm font-black ${
+                            className={`rounded-full px-3 py-1 text-sm font-black ${
                               rating >= 1
                                 ? "bg-yellow-500/15 text-[#f4b83f]"
                                 : rating >= 0.8
@@ -347,12 +421,12 @@ export default function Home() {
                           </span>
                         </td>
 
-                        <td className="px-4 py-4 text-base">{player.matches}</td>
+                        <td className="px-4 py-3">{player.matches}</td>
 
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <span className="text-base">{player.winrate}%</span>
-                            <span className="h-2 w-16 overflow-hidden rounded-full bg-[#27313d]">
+                            <span>{player.winrate}%</span>
+                            <span className="h-1.5 w-16 overflow-hidden rounded-full bg-[#27313d]">
                               <span
                                 className="block h-full rounded-full bg-green-500"
                                 style={{
@@ -366,22 +440,20 @@ export default function Home() {
                           </div>
                         </td>
 
-                        <td className="px-4 py-4 text-base">{player.kills}</td>
-                        <td className="px-4 py-4 text-base">{player.assists}</td>
-                        <td className="px-4 py-4 text-base">{player.deaths}</td>
-                        <td className="px-4 py-4 text-base">{player.adr}</td>
+                        <td className="px-4 py-3">{player.kills}</td>
+                        <td className="px-4 py-3">{player.assists}</td>
+                        <td className="px-4 py-3">{player.deaths}</td>
+                        <td className="px-4 py-3">{player.adr}</td>
 
                         <td
-                          className={`px-4 py-4 text-base font-black ${
+                          className={`px-4 py-3 font-black ${
                             kdGood ? "text-green-400" : "text-red-400"
                           }`}
                         >
                           {player.kd}
                         </td>
 
-                        <td className="px-4 py-4 text-base">
-                          {player.hsPercent}%
-                        </td>
+                        <td className="px-4 py-3">{player.hsPercent}%</td>
                       </tr>
                     );
                   })}
@@ -392,17 +464,17 @@ export default function Home() {
 
           <section
             id="especiales"
-            className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6"
+            className="rounded-[1.25rem] border border-[#263241] bg-[#0b0f16] p-5"
           >
-            <p className="text-sm uppercase tracking-[0.3em] text-red-500">
+            <p className="text-xs uppercase tracking-[0.35em] text-red-500">
               Premios internos
             </p>
 
-            <h2 className="mb-6 text-3xl font-black text-white">
+            <h2 className="mb-4 text-2xl font-black text-white">
               Rankings especiales
             </h2>
 
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <SpecialRanking
                 title="⚔️ Mejor Entry"
                 ranking={ranking
@@ -437,60 +509,69 @@ export default function Home() {
 
           <section
             id="partidas"
-            className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6"
+            className="rounded-[1.25rem] border border-[#263241] bg-[#101722] p-5"
           >
-            <p className="text-sm uppercase tracking-[0.3em] text-red-500">
-              Actividad reciente
-            </p>
+            <details>
+              <summary className="cursor-pointer list-none">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.35em] text-red-500">
+                      Actividad reciente
+                    </p>
 
-            <h2 className="mb-6 text-3xl font-black text-white">
-              Historial de partidas
-            </h2>
+                    <h2 className="text-2xl font-black text-white">
+                      Historial de partidas
+                    </h2>
+                  </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              {matches
-                .slice()
-                .reverse()
-                .slice(0, 8)
-                .map((match) => (
+                  <span className="rounded-full border border-[#334155] bg-black px-4 py-2 text-sm font-bold text-zinc-300">
+                    Abrir / cerrar
+                  </span>
+                </div>
+              </summary>
+
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {latestMatches.map((match) => (
                   <div
                     key={match.demoFile}
-                    className="rounded-xl border border-zinc-800 bg-black p-4"
+                    className="rounded-xl border border-[#263241] bg-black/45 p-4"
                   >
                     <div className="flex items-center justify-between gap-4">
-                      <p className="text-xl font-black text-red-500">
-                        {match.map}
-                      </p>
+                      <div>
+                        <p className="text-lg font-black text-yellow-400">
+                          {formatMapName(match.map)}
+                        </p>
+                        <p className="mt-1 text-xs text-zinc-500">
+                          {match.demoFile}
+                        </p>
+                      </div>
 
-                      <span className="rounded-full bg-zinc-900 px-3 py-1 text-xs font-bold text-zinc-400">
+                      <span className="rounded-full bg-[#151d29] px-3 py-1 text-xs font-bold text-zinc-400">
                         {match.rounds} rondas
                       </span>
                     </div>
 
-                    <p className="mt-3 text-zinc-300">
+                    <p className="mt-3 text-sm text-zinc-300">
                       MVP:{" "}
                       <span className="font-bold text-white">
                         {match.mvp?.name || "Sin MVP"}
                       </span>
                     </p>
-
-                    <p className="mt-2 text-sm text-zinc-500">
-                      {match.demoFile}
-                    </p>
                   </div>
                 ))}
-            </div>
+              </div>
+            </details>
           </section>
 
           <section
             id="subir-demo"
-            className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6"
+            className="rounded-[1.25rem] border border-[#263241] bg-[#101722] p-5"
           >
-            <p className="text-sm uppercase tracking-[0.3em] text-red-500">
+            <p className="text-xs uppercase tracking-[0.35em] text-red-500">
               Base de datos
             </p>
 
-            <h2 className="mb-4 text-3xl font-black text-white">Subir Demo</h2>
+            <h2 className="mb-4 text-2xl font-black text-white">Subir Demo</h2>
 
             <DemoUploader />
           </section>
@@ -503,40 +584,45 @@ export default function Home() {
 function NavButton({
   href,
   label,
+  icon,
   active = false,
 }: {
   href: string;
   label: string;
+  icon: string;
   active?: boolean;
 }) {
   return (
     <a
       href={href}
-      className={`rounded-xl border px-6 py-4 text-center font-bold transition ${
+      className={`rounded-xl border px-5 py-3 text-center text-sm font-black uppercase tracking-wide transition ${
         active
-          ? "border-red-600 bg-red-600 text-white hover:bg-red-700"
-          : "border-zinc-700 bg-zinc-900 text-zinc-200 hover:border-red-600"
+          ? "border-yellow-500/55 bg-yellow-500/10 text-yellow-400"
+          : "border-[#263241] bg-[#101722] text-zinc-200 hover:border-yellow-500/45"
       }`}
     >
+      <span className="mr-2">{icon}</span>
       {label}
     </a>
   );
 }
 
-function SeasonStat({ title, value }: { title: string; value: string | number }) {
+function SeasonStat({
+  title,
+  value,
+  icon,
+}: {
+  title: string;
+  value: string | number;
+  icon: string;
+}) {
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-black/50 p-4">
-      <p className="text-3xl font-black text-red-500">{value}</p>
-      <p className="mt-1 text-sm text-zinc-400">{title}</p>
-    </div>
-  );
-}
-
-function PodioMini({ title, value }: { title: string; value: string | number }) {
-  return (
-    <div className="rounded-xl border border-zinc-800 bg-black p-3">
-      <p className="text-xs text-zinc-500">{title}</p>
-      <p className="font-black text-zinc-200">{value}</p>
+    <div className="rounded-xl border border-[#263241] bg-black/35 p-3">
+      <p className="text-lg">{icon}</p>
+      <p className="mt-1 text-2xl font-black text-white">{value}</p>
+      <p className="text-[11px] uppercase tracking-widest text-zinc-500">
+        {title}
+      </p>
     </div>
   );
 }
@@ -551,8 +637,8 @@ function SpecialRanking({
   getText: (player: any) => string;
 }) {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-black p-4">
-      <h3 className="mb-4 text-lg font-black text-white">{title}</h3>
+    <div className="rounded-xl border border-[#263241] bg-black/40 p-4">
+      <h3 className="mb-3 text-base font-black text-white">{title}</h3>
 
       <div className="space-y-2">
         {ranking.map((p, i) => {
@@ -561,9 +647,9 @@ function SpecialRanking({
           return (
             <div
               key={p.steamid}
-              className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-1.5 hover:border-zinc-700"
+              className="flex items-center justify-between rounded-lg border border-[#263241] bg-[#0b0f16] px-3 py-1.5 hover:border-zinc-700"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
                 <div
                   className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-black ${
                     i === 0
@@ -602,7 +688,9 @@ function SpecialRanking({
                 </span>
               </div>
 
-              <span className="text-sm font-black text-yellow-400">{getText(p)}</span>
+              <span className="text-sm font-black text-yellow-400">
+                {getText(p)}
+              </span>
             </div>
           );
         })}

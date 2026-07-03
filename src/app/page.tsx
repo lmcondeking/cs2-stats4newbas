@@ -107,7 +107,7 @@ export default function Home() {
                 Ranking
               </a>
               <a href="#especiales" className="transition hover:text-white">
-                Especiales
+                Premios
               </a>
               <a href="#partidas" className="transition hover:text-white">
                 Partidas
@@ -210,13 +210,6 @@ export default function Home() {
           </div>
         </section>
 
-        <div className="mb-5 grid gap-3 md:grid-cols-4">
-          <NavButton href="#ranking" label="Ranking" icon="🏆" active />
-          <NavButton href="#especiales" label="Especiales" icon="⚔️" />
-          <NavButton href="#partidas" label="Partidas" icon="☰" />
-          <NavButton href="#subir-demo" label="Subir Demo" icon="☁️" />
-        </div>
-
         <section className="mb-5 rounded-[1.35rem] border border-[#263241] bg-[#101722] p-5">
           <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
             Podio oficial
@@ -259,7 +252,7 @@ export default function Home() {
                   <span className="flex h-5 w-5 items-center justify-center rounded-full border border-violet-400 text-[10px] font-black text-violet-300">
                     {getPlayerGc(player)}
                   </span>
-                  <h3 className="text-lg font-black text-white">
+                  <h3 className="whitespace-nowrap text-base font-black text-white">
                     {player.name}
                   </h3>
                 </div>
@@ -306,7 +299,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <h2 className="text-base font-black text-white">
+                  <h2 className="whitespace-nowrap text-sm font-black text-white">
                     {card.player?.name || "Sin datos"}
                   </h2>
                   <p className="text-xs text-zinc-500">{card.label}</p>
@@ -378,13 +371,13 @@ export default function Home() {
                               />
                             </span>
 
-                            <span className="flex min-w-[250px] items-center gap-2">
-                              <span className="text-[15px] font-black text-white">
+                            <span className="flex min-w-[285px] items-center gap-2">
+                              <span className="whitespace-nowrap text-sm font-black text-white">
                                 {player.name}
                               </span>
 
                               {isInForm && (
-                                <span className="rounded-full bg-orange-400 px-2 py-0.5 text-[9px] font-black uppercase text-black">
+                                <span className="whitespace-nowrap rounded-full bg-orange-400 px-2 py-0.5 text-[9px] font-black uppercase text-black">
                                   🔥 En forma
                                 </span>
                               )}
@@ -581,32 +574,6 @@ export default function Home() {
   );
 }
 
-function NavButton({
-  href,
-  label,
-  icon,
-  active = false,
-}: {
-  href: string;
-  label: string;
-  icon: string;
-  active?: boolean;
-}) {
-  return (
-    <a
-      href={href}
-      className={`rounded-xl border px-5 py-3 text-center text-sm font-black uppercase tracking-wide transition ${
-        active
-          ? "border-yellow-500/55 bg-yellow-500/10 text-yellow-400"
-          : "border-[#263241] bg-[#101722] text-zinc-200 hover:border-yellow-500/45"
-      }`}
-    >
-      <span className="mr-2">{icon}</span>
-      {label}
-    </a>
-  );
-}
-
 function SeasonStat({
   title,
   value,
@@ -681,7 +648,7 @@ function SpecialRanking({
 
                   <Link
                     href={`/player/${p.steamid}`}
-                    className="text-sm font-semibold text-white hover:text-red-400"
+                    className="whitespace-nowrap text-sm font-semibold text-white hover:text-red-400"
                   >
                     {p.name}
                   </Link>

@@ -110,6 +110,19 @@ export default async function PlayerPage({ params }: Props) {
   }));
 
   const recentMatches = playerMatches.slice(-11);
+  const comparePlayer =
+    ranking.find((p) => String(p.steamid) !== String(player.steamid)) || null;
+
+  const comparisonRows = comparePlayer
+    ? [
+        { label: "Rating", player: player.ratingS4N, rival: comparePlayer.ratingS4N },
+        { label: "K/D", player: player.kd, rival: comparePlayer.kd },
+        { label: "ADR", player: player.adr, rival: comparePlayer.adr },
+        { label: "KAST", player: `${player.kastPercent}%`, rival: `${comparePlayer.kastPercent}%` },
+        { label: "Impact", player: player.impactRating, rival: comparePlayer.impactRating },
+      ]
+    : [];
+
   const winCount = playerMatches.filter(
     (match) => match.winnerTeam && match.player?.team === match.winnerTeam
   ).length;
@@ -173,7 +186,7 @@ export default async function PlayerPage({ params }: Props) {
           ← Volver al ranking
         </Link>
 
-        <section className="s4n-card relative overflow-hidden rounded-[1.6rem] border border-white/10 p-6">
+        <section className="s4n-card relative overflow-hidden rounded-[1.35rem] border border-white/10 p-5">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_5%,rgba(239,68,68,0.20),transparent_34%),radial-gradient(circle_at_90%_15%,rgba(245,158,11,0.10),transparent_30%)]" />
 
           <div className="relative grid gap-6 lg:grid-cols-[1.45fr_0.85fr]">
@@ -183,12 +196,12 @@ export default async function PlayerPage({ params }: Props) {
               </p>
 
               <div className="mt-4 flex flex-wrap items-center gap-5">
-                <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-violet-500/40 bg-black shadow-xl shadow-violet-950/30">
+                <div className="relative h-20 w-20 overflow-hidden rounded-2xl border border-violet-500/40 bg-black shadow-xl shadow-violet-950/30">
                   <Image
                     src={getPlayerAvatar(String(player.steamid))}
                     alt={player.name}
                     fill
-                    sizes="96px"
+                    sizes="80px"
                     className="object-cover"
                     priority
                   />
@@ -200,7 +213,7 @@ export default async function PlayerPage({ params }: Props) {
                       {gc}
                     </span>
 
-                    <h1 className="text-4xl font-black tracking-tight text-white md:text-5xl">
+                    <h1 className="text-3xl font-black tracking-tight text-white md:text-4xl">
                       {player.name}
                     </h1>
 
@@ -227,7 +240,7 @@ export default async function PlayerPage({ params }: Props) {
               </p>
 
               <p
-                className={`mt-3 text-7xl font-black ${getRatingColor(
+                className={`mt-2 text-5xl font-black ${getRatingColor(
                   Number(player.ratingS4N)
                 )}`}
               >
@@ -238,14 +251,14 @@ export default async function PlayerPage({ params }: Props) {
                 Impact {player.impactRating} · KAST {player.kastPercent}%
               </p>
 
-              <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="mt-4 grid grid-cols-2 gap-3">
                 <MiniStat title="CT K/D" value={player.ctKd} />
                 <MiniStat title="T K/D" value={player.tKd} />
               </div>
             </div>
           </div>
 
-          <div className="relative mt-5 grid gap-3 md:grid-cols-6">
+          <div className="relative mt-4 grid gap-2 md:grid-cols-6">
             <MiniStat icon="⚔️" title="Partidas" value={player.matches} />
             <MiniStat icon="♻️" title="Winrate" value={`${player.winrate}%`} />
             <MiniStat icon="🎯" title="MVPs" value={player.mvps} />
@@ -344,14 +357,14 @@ export default async function PlayerPage({ params }: Props) {
           </div>
         </section>
 
-        <section className="s4n-card mt-5 rounded-[1.45rem] border border-white/10 p-5">
-          <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <section className="s4n-card mt-5 rounded-[1.35rem] border border-white/10 p-5">
+          <div className="grid gap-5 lg:grid-cols-[0.82fr_1.18fr]">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
                 Habilidades
               </p>
 
-              <div className="mt-4 flex justify-center">
+              <div className="mt-3 flex justify-center">
                 <RadarChart
                   values={[
                     { label: "Firepower", value: firepower },
@@ -367,13 +380,80 @@ export default async function PlayerPage({ params }: Props) {
             </div>
 
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-                Forma del jugador
-              </p>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
+                    Comparativa rápida
+                  </p>
+                  <h2 className="text-2xl font-black text-white">
+                    Vs jugador cercano
+                  </h2>
+                </div>
 
-              <div className="mt-4">
-                <PlayerCharts data={chartData.slice(-11)} />
+                {comparePlayer && (
+                  <Link
+                    href={`/player/${comparePlayer.steamid}`}
+                    className="text-sm font-bold text-zinc-400 transition hover:text-white"
+                  >
+                    Ver rival →
+                  </Link>
+                )}
               </div>
+
+              {comparePlayer ? (
+                <div className="rounded-[1.2rem] border border-white/10 bg-black/30 p-4">
+                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+                    <div className="text-center">
+                      <div className="relative mx-auto h-14 w-14 overflow-hidden rounded-full border border-yellow-500/50">
+                        <Image
+                          src={getPlayerAvatar(String(player.steamid))}
+                          alt={player.name}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      </div>
+                      <p className="mt-2 truncate text-sm font-black text-white">
+                        {player.name}
+                      </p>
+                    </div>
+
+                    <div className="rounded-full border border-red-500/35 bg-red-500/10 px-3 py-1 text-xs font-black text-red-300">
+                      VS
+                    </div>
+
+                    <div className="text-center">
+                      <div className="relative mx-auto h-14 w-14 overflow-hidden rounded-full border border-blue-500/50">
+                        <Image
+                          src={getPlayerAvatar(String(comparePlayer.steamid))}
+                          alt={comparePlayer.name}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      </div>
+                      <p className="mt-2 truncate text-sm font-black text-white">
+                        {comparePlayer.name}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid gap-2">
+                    {comparisonRows.map((row) => (
+                      <CompareRow
+                        key={row.label}
+                        label={row.label}
+                        left={row.player}
+                        right={row.rival}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-white/10 bg-black/30 p-4 text-zinc-400">
+                  No hay otro jugador disponible para comparar.
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -674,6 +754,37 @@ function CompactDetails({
   );
 }
 
+function CompareRow({
+  label,
+  left,
+  right,
+}: {
+  label: string;
+  left: string | number;
+  right: string | number;
+}) {
+  const leftNum = Number(String(left).replace("%", ""));
+  const rightNum = Number(String(right).replace("%", ""));
+  const leftWins = !Number.isNaN(leftNum) && !Number.isNaN(rightNum) && leftNum >= rightNum;
+  const rightWins = !Number.isNaN(leftNum) && !Number.isNaN(rightNum) && rightNum > leftNum;
+
+  return (
+    <div className="grid grid-cols-[1fr_90px_1fr] items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+      <p className={`text-right text-sm font-black ${leftWins ? "text-yellow-400" : "text-zinc-300"}`}>
+        {left}
+      </p>
+
+      <p className="text-center text-[11px] font-black uppercase tracking-widest text-zinc-500">
+        {label}
+      </p>
+
+      <p className={`text-left text-sm font-black ${rightWins ? "text-blue-400" : "text-zinc-300"}`}>
+        {right}
+      </p>
+    </div>
+  );
+}
+
 function RadarChart({
   values,
   points,
@@ -682,8 +793,8 @@ function RadarChart({
   points: string;
 }) {
   return (
-    <div className="relative h-[300px] w-full max-w-[420px]">
-      <svg viewBox="0 0 220 220" className="mx-auto h-[260px] w-[260px]">
+    <div className="relative h-[230px] w-full max-w-[340px]">
+      <svg viewBox="0 0 220 220" className="mx-auto h-[210px] w-[210px]">
         {[82, 66, 50, 34, 18].map((radius) => (
           <circle
             key={radius}

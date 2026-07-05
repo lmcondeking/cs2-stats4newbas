@@ -2,8 +2,8 @@ import { getDashboardStats } from "@/lib/stats";
 import Image from "next/image";
 import Link from "next/link";
 import PlayerCharts from "@/components/PlayerCharts";
-import PlayerAttributeBars from "@/components/PlayerAttributeBars";
 import PlayerBadges from "@/components/PlayerBadges";
+import type { ReactNode } from "react";
 
 type Props = {
   params: Promise<{
@@ -20,41 +20,71 @@ const avatarMap: Record<string, string> = {
   "76561198051821859": "/avatars/tenedor.png",
 };
 
-const playerMeta: Record<string, { gc: number }> = {
-  "76561198810129628": { gc: 8 },
-  "76561199037068708": { gc: 13 },
-  "76561198827102122": { gc: 14 },
-  "76561199082720391": { gc: 8 },
-  "76561198072925518": { gc: 8 },
-  "76561198051821859": { gc: 5 },
-};
-
 function getPlayerAvatar(steamid: string) {
   return avatarMap[steamid] || "/avatars/default.png";
 }
 
+function cleanMapName(map?: string) {
+  if (!map) return "SIN DATOS";
+  return String(map).replace("de_", "").toUpperCase();
+}
+
+function clamp(value: number) {
+  return Math.max(0, Math.min(100, Number(value) || 0));
+}
+
+function getRatingColor(rating: number) {
+  if (rating >= 1.2) return "text-emerald-400";
+  if (rating >= 1.0) return "text-yellow-400";
+  return "text-red-400";
+}
+
+function getPlayerGc(player: any) {
+  return player?.gcLevel || "-";
+}
+
+function getRecentResult(match: any) {
+  return match.winnerTeam && match.player?.team === match.winnerTeam ? "W" : "L";
+}
+
+function buildRadarPoints(values: number[]) {
+  const center = 110;
+  const maxRadius = 82;
+
+  return values
+    .map((value, index) => {
+      const angle = -90 + index * 60;
+      const radians = (Math.PI / 180) * angle;
+      const radius = (clamp(value) / 100) * maxRadius;
+      const x = center + radius * Math.cos(radians);
+      const y = center + radius * Math.sin(radians);
+      return `${x},${y}`;
+    })
+    .join(" ");
+}
+
 export default async function PlayerPage({ params }: Props) {
   const { steamid } = await params;
-
   const { ranking, matches } = getDashboardStats();
 
   const player = ranking.find((p) => String(p.steamid) === String(steamid));
 
   if (!player) {
     return (
-      <main className="min-h-screen bg-[#05080d] p-10 text-white">
-        <Link href="/" className="text-red-500">
-          ← Volver
-        </Link>
+      <main className="s4n-page min-h-screen px-6 py-8 text-white">
+        <section className="mx-auto max-w-6xl">
+          <Link href="/" className="text-red-400 hover:text-red-300">
+            ← Volver
+          </Link>
 
-        <h1 className="mt-10 text-4xl font-black">Jugador no encontrado</h1>
-
-        <p className="mt-4 text-zinc-400">SteamID buscado: {steamid}</p>
+          <h1 className="mt-10 text-4xl font-black">Jugador no encontrado</h1>
+          <p className="mt-4 text-zinc-400">SteamID buscado: {steamid}</p>
+        </section>
       </main>
     );
   }
 
-  const gc = playerMeta[String(player.steamid)]?.gc || "-";
+  const gc = getPlayerGc(player);
 
   const playerMatches = matches
     .filter((match) =>
@@ -73,36 +103,87 @@ export default async function PlayerPage({ params }: Props) {
     });
 
   const chartData = playerMatches.map((match, index) => ({
-    match: `${match.map} #${index + 1}`,
+    match: `${cleanMapName(match.map)} #${index + 1}`,
     rating: Number(match.player?.ratingS4N || 0),
     adr: Number(match.player?.adr || 0),
     kd: Number(match.player?.kd || 0),
   }));
 
-  const recentMatches = playerMatches.slice(-14);
+  const recentMatches = playerMatches.slice(-11);
   const winCount = playerMatches.filter(
     (match) => match.winnerTeam && match.player?.team === match.winnerTeam
   ).length;
 
+  const firepower = clamp(Number(player.ratingS4N || 0) * 65);
+  const opening = clamp(player.openingDuelWinPercent || 0);
+  const trading = clamp((player.tradeKillPercent || 0) * 2.2);
+  const clutching = clamp((player.totalClutches || 0) * 12);
+  const utility = clamp(
+    ((player.heDamage || 0) + (player.molotovDamage || 0)) / 10 +
+      (player.flashAssists || 0) * 8
+  );
+  const consistency = clamp(player.kastPercent || 0);
+
+  const radarValues = [firepower, opening, trading, utility, consistency, clutching];
+  const radarPoints = buildRadarPoints(radarValues);
+
+  const keyStats = [
+    { title: "Rating S4N", value: player.ratingS4N, sub: "rendimiento global", tone: "yellow" },
+    { title: "K/D Ratio", value: player.kd, sub: "kills / deaths", tone: Number(player.kd) >= 1 ? "blue" : "red" },
+    { title: "ADR", value: player.adr, sub: "daño promedio", tone: Number(player.adr) >= 80 ? "green" : "red" },
+    { title: "KAST", value: `${player.kastPercent}%`, sub: "consistencia", tone: "purple" },
+    { title: "Impact", value: player.impactRating, sub: "influencia", tone: "orange" },
+  ];
+
   return (
-    <main className="min-h-screen bg-[#05080d] px-6 py-8 text-white">
-      <section className="mx-auto max-w-6xl">
+    <main className="s4n-page min-h-screen px-4 py-5 text-white">
+      <section className="mx-auto max-w-7xl">
+        <header className="s4n-nav sticky top-0 z-30 mb-5 rounded-2xl border border-white/10 px-5 py-3 backdrop-blur-xl">
+          <div className="flex items-center justify-between gap-4">
+            <Link href="/" className="text-2xl font-black tracking-tight">
+              <span className="text-red-500">S4</span>
+              <span className="text-yellow-400">N</span>
+            </Link>
+
+            <nav className="flex items-center gap-6 text-sm font-black text-zinc-400">
+              <Link href="/" className="transition hover:text-white">
+                Ranking
+              </Link>
+              <span className="border-b-2 border-yellow-400 pb-2 text-white">
+                Jugadores
+              </span>
+              <Link href="/#partidas" className="transition hover:text-white">
+                Partidas
+              </Link>
+              <Link href="/#subir-demo" className="transition hover:text-white">
+                Subir Demo
+              </Link>
+            </nav>
+
+            <span className="hidden rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-red-300 md:inline-flex">
+              Temporada 2026
+            </span>
+          </div>
+        </header>
+
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm font-bold text-zinc-400 transition hover:text-red-400"
+          className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-zinc-400 transition hover:text-red-400"
         >
           ← Volver al ranking
         </Link>
 
-        <section className="mt-6 overflow-hidden rounded-[1.75rem] border border-[#263241] bg-gradient-to-br from-[#111a26] via-[#080d14] to-[#05080d] shadow-2xl shadow-black/40">
-          <div className="grid gap-6 p-6 md:grid-cols-[1.35fr_0.85fr]">
+        <section className="s4n-card relative overflow-hidden rounded-[1.6rem] border border-white/10 p-6">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_5%,rgba(239,68,68,0.20),transparent_34%),radial-gradient(circle_at_90%_15%,rgba(245,158,11,0.10),transparent_30%)]" />
+
+          <div className="relative grid gap-6 lg:grid-cols-[1.45fr_0.85fr]">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.35em] text-red-500">
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-red-400">
                 Perfil de jugador
               </p>
 
-              <div className="mt-4 flex items-center gap-5">
-                <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-[#334155] bg-black shadow-xl">
+              <div className="mt-4 flex flex-wrap items-center gap-5">
+                <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-violet-500/40 bg-black shadow-xl shadow-violet-950/30">
                   <Image
                     src={getPlayerAvatar(String(player.steamid))}
                     alt={player.name}
@@ -113,15 +194,17 @@ export default async function PlayerPage({ params }: Props) {
                   />
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="flex h-7 w-7 items-center justify-center rounded-full border border-violet-400 text-xs font-black text-violet-300 shadow-[0_0_10px_rgba(167,139,250,0.35)]">
                       {gc}
                     </span>
 
-                    <h1 className="text-5xl font-black tracking-tight text-white">
+                    <h1 className="text-4xl font-black tracking-tight text-white md:text-5xl">
                       {player.name}
                     </h1>
+
+                    <span className="text-4xl text-zinc-300">☆</span>
 
                     <span className="inline-flex items-center gap-2 rounded-md bg-violet-600/90 px-3 py-1 text-xs font-black text-white shadow-lg shadow-violet-900/30">
                       <span className="h-2 w-2 rounded-full bg-violet-100 shadow-[0_0_8px_rgba(221,214,254,0.9)]" />
@@ -133,22 +216,13 @@ export default async function PlayerPage({ params }: Props) {
                     SteamID: {player.steamid}
                   </p>
 
-                  <div className="mt-3">
-                    <PlayerBadges player={player} ranking={ranking} />
-                  </div>
+                  <PlayerBadges player={player} ranking={ranking} />
                 </div>
-              </div>
-
-              <div className="mt-6 grid gap-3 md:grid-cols-4">
-                <MiniStat title="Partidas" value={player.matches} />
-                <MiniStat title="Winrate" value={`${player.winrate}%`} />
-                <MiniStat title="MVPs" value={player.mvps} />
-                <MiniStat title="Victorias" value={winCount} />
               </div>
             </div>
 
-            <div className="rounded-[1.5rem] border border-[#263241] bg-black/50 p-5 text-center">
-              <p className="text-xs font-black uppercase tracking-[0.3em] text-[#9aa4b2]">
+            <div className="rounded-[1.35rem] border border-white/10 bg-black/35 p-5 text-center">
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-[#9aa4b2]">
                 Rating S4N
               </p>
 
@@ -160,7 +234,7 @@ export default async function PlayerPage({ params }: Props) {
                 {player.ratingS4N}
               </p>
 
-              <p className="mt-3 text-sm text-zinc-400">
+              <p className="mt-2 text-sm text-zinc-400">
                 Impact {player.impactRating} · KAST {player.kastPercent}%
               </p>
 
@@ -170,25 +244,32 @@ export default async function PlayerPage({ params }: Props) {
               </div>
             </div>
           </div>
+
+          <div className="relative mt-5 grid gap-3 md:grid-cols-6">
+            <MiniStat icon="⚔️" title="Partidas" value={player.matches} />
+            <MiniStat icon="♻️" title="Winrate" value={`${player.winrate}%`} />
+            <MiniStat icon="🎯" title="MVPs" value={player.mvps} />
+            <MiniStat icon="🛡️" title="Victorias" value={winCount} />
+            <MiniStat icon="➕" title="Rondas" value={player.rounds || "-"} />
+            <MiniStat icon="💀" title="Kills" value={player.kills} />
+          </div>
         </section>
 
-        <section className="mt-6 rounded-[1.5rem] border border-[#263241] bg-[#101722] p-5">
-          <div className="mb-4 flex items-center justify-between border-b border-[#263241] pb-4">
+        <section className="s4n-card mt-5 rounded-[1.45rem] border border-white/10 p-5">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.3em] text-red-500">
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
                 Resumen rápido
               </p>
-              <h2 className="text-2xl font-black text-white">
-                Perfil estadístico
-              </h2>
+              <h2 className="text-2xl font-black text-white">Estado actual</h2>
             </div>
 
-            <div className="text-right text-sm text-zinc-400">
+            <p className="text-sm font-bold text-zinc-400">
               Últimas {recentMatches.length} partidas
-            </div>
+            </p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr]">
+          <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
               <p className="mb-3 text-xs font-black uppercase tracking-[0.25em] text-[#9aa4b2]">
                 Forma reciente
@@ -196,20 +277,17 @@ export default async function PlayerPage({ params }: Props) {
 
               <div className="flex flex-wrap gap-2">
                 {recentMatches.map((match) => {
-                  const result =
-                    match.winnerTeam && match.player?.team === match.winnerTeam
-                      ? "W"
-                      : "L";
+                  const result = getRecentResult(match);
 
                   return (
                     <span
                       key={match.demoFile}
                       className={`flex h-8 w-8 items-center justify-center rounded-md border text-xs font-black ${
                         result === "W"
-                          ? "border-green-500/50 bg-green-500/15 text-green-400"
+                          ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-400"
                           : "border-red-500/50 bg-red-500/15 text-red-400"
                       }`}
-                      title={match.map}
+                      title={cleanMapName(match.map)}
                     >
                       {result}
                     </span>
@@ -222,32 +300,16 @@ export default async function PlayerPage({ params }: Props) {
               <InfoCard
                 icon="🏆"
                 title="Mejor mapa"
-                value={
-                  player.bestMap
-                    ? String(player.bestMap.map).replace("de_", "").toUpperCase()
-                    : "Sin datos"
-                }
-                sub={
-                  player.bestMap
-                    ? `Rating ${player.bestMap.ratingS4N}`
-                    : "Sin datos"
-                }
+                value={player.bestMap ? cleanMapName(player.bestMap.map) : "Sin datos"}
+                sub={player.bestMap ? `Rating ${player.bestMap.ratingS4N}` : "Sin datos"}
                 tone="green"
               />
 
               <InfoCard
                 icon="💀"
                 title="Peor mapa"
-                value={
-                  player.worstMap
-                    ? String(player.worstMap.map).replace("de_", "").toUpperCase()
-                    : "Sin datos"
-                }
-                sub={
-                  player.worstMap
-                    ? `Rating ${player.worstMap.ratingS4N}`
-                    : "Sin datos"
-                }
+                value={player.worstMap ? cleanMapName(player.worstMap.map) : "Sin datos"}
+                sub={player.worstMap ? `Rating ${player.worstMap.ratingS4N}` : "Sin datos"}
                 tone="red"
               />
 
@@ -270,90 +332,151 @@ export default async function PlayerPage({ params }: Props) {
           </div>
         </section>
 
-        <section className="mt-6">
-          <PlayerAttributeBars player={player} />
-        </section>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-4">
-          <Card title="Impact Rating" value={player.impactRating} />
-          <Card title="KAST%" value={`${player.kastPercent}%`} />
-          <Card title="K/D" value={player.kd} />
-          <Card title="ADR" value={player.adr} />
-          <Card title="HS%" value={`${player.hsPercent}%`} />
-          <Card title="Diff" value={player.diff} />
-          <Card title="Kills" value={player.kills} />
-          <Card title="Deaths" value={player.deaths} />
-          <Card title="Assists" value={player.assists} />
-          <Card title="Entry Kills" value={player.entryKills} />
-          <Card title="Entry Deaths" value={player.entryDeaths} />
-          <Card title="Entry Ratio" value={player.entryRatio} />
-          <Card
-            title="Opening Duel Win%"
-            value={`${player.openingDuelWinPercent}%`}
-          />
-          <Card title="First Kill%" value={`${player.firstKillPercent}%`} />
-          <Card title="Trade Kill%" value={`${player.tradeKillPercent}%`} />
-          <Card title="Trade Kills" value={player.tradeKills} />
-          <Card title="Clutches" value={player.totalClutches} />
-          <Card title="Bait Rounds" value={player.baitRounds} />
-          <Card title="HE Damage" value={player.heDamage} />
-          <Card title="Flash Assists" value={player.flashAssists} />
-          <Card title="Molotov Damage" value={player.molotovDamage} />
-        </div>
-
-        <section className="mt-8 rounded-[1.5rem] border border-[#263241] bg-[#101722] p-5">
-          <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-[#9aa4b2]">
-            Rendimiento por mapa
+        <section className="s4n-card mt-5 rounded-[1.45rem] border border-white/10 p-5">
+          <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
+            Estadísticas clave
           </p>
 
-          <div className="grid gap-3 md:grid-cols-4">
-            {player.mapStats?.map((map: any) => (
-              <div
-                key={map.map}
-                className="rounded-xl border border-[#263241] bg-black/45 p-4"
-              >
-                <p className="inline-flex rounded-md bg-yellow-500/15 px-2 py-1 text-xs font-black text-yellow-400">
-                  {String(map.map).replace("de_", "").toUpperCase()}
-                </p>
-
-                <p className="mt-3 text-sm text-zinc-400">
-                  {map.matches} partidas · WR {map.winrate}%
-                </p>
-
-                <p className="mt-2 text-xl font-black text-yellow-400">
-                  {map.ratingS4N} rating
-                </p>
-
-                <p className="mt-1 text-sm text-zinc-300">
-                  {map.kd} K/D · {map.adr} ADR
-                </p>
-              </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-5">
+            {keyStats.map((stat) => (
+              <KeyStatCard key={stat.title} stat={stat} />
             ))}
           </div>
         </section>
 
-        <section className="mt-8 rounded-[1.5rem] border border-[#263241] bg-[#101722] p-5">
-          <details>
-            <summary className="cursor-pointer list-none">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.3em] text-red-500">
-                    Historial
-                  </p>
-                  <h2 className="text-2xl font-black text-white">
-                    Historial del jugador
-                  </h2>
-                </div>
+        <section className="s4n-card mt-5 rounded-[1.45rem] border border-white/10 p-5">
+          <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
+                Habilidades
+              </p>
 
-                <span className="rounded-full border border-[#334155] bg-black px-4 py-2 text-sm font-bold text-zinc-300">
-                  Abrir / cerrar
-                </span>
+              <div className="mt-4 flex justify-center">
+                <RadarChart
+                  values={[
+                    { label: "Firepower", value: firepower },
+                    { label: "Opening", value: opening },
+                    { label: "Trading", value: trading },
+                    { label: "Utility", value: utility },
+                    { label: "Consistency", value: consistency },
+                    { label: "Clutching", value: clutching },
+                  ]}
+                  points={radarPoints}
+                />
               </div>
-            </summary>
+            </div>
 
-            <div className="mt-5 overflow-x-auto">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
+                Forma del jugador
+              </p>
+
+              <div className="mt-4">
+                <PlayerCharts data={chartData.slice(-11)} />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="mt-5 grid gap-3">
+          <CompactDetails
+            icon="📈"
+            title="Evolución y gráficos"
+            subtitle="Rating, ADR y K/D por partida"
+          >
+            <PlayerCharts data={chartData} />
+          </CompactDetails>
+
+          <CompactDetails
+            icon="🗺️"
+            title="Rendimiento por mapa"
+            subtitle="Estadísticas y winrate en cada mapa"
+          >
+            <div className="grid gap-3 md:grid-cols-4">
+              {player.mapStats?.map((map: any) => (
+                <div
+                  key={map.map}
+                  className="rounded-xl border border-white/10 bg-black/35 p-4"
+                >
+                  <p className="inline-flex rounded-md bg-yellow-500/15 px-2 py-1 text-xs font-black text-yellow-400">
+                    {cleanMapName(map.map)}
+                  </p>
+
+                  <p className="mt-3 text-sm text-zinc-400">
+                    {map.matches} partidas · WR {map.winrate}%
+                  </p>
+
+                  <p className="mt-2 text-xl font-black text-yellow-400">
+                    {map.ratingS4N} rating
+                  </p>
+
+                  <p className="mt-1 text-sm text-zinc-300">
+                    {map.kd} K/D · {map.adr} ADR
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CompactDetails>
+
+          <CompactDetails
+            icon="🔫"
+            title="Kills por arma"
+            subtitle="Desglose de kills por cada arma"
+          >
+            <div className="grid gap-3 md:grid-cols-4">
+              {Object.entries(player.weapons || {})
+                .sort((a, b) => Number(b[1]) - Number(a[1]))
+                .slice(0, 12)
+                .map(([weapon, kills]) => (
+                  <div
+                    key={weapon}
+                    className="rounded-xl border border-white/10 bg-black/35 p-4"
+                  >
+                    <p className="text-xs uppercase tracking-widest text-zinc-500">
+                      {weapon}
+                    </p>
+                    <p className="mt-2 text-2xl font-black text-yellow-400">
+                      {Number(kills)}
+                    </p>
+                  </div>
+                ))}
+            </div>
+          </CompactDetails>
+
+          <CompactDetails
+            icon="📊"
+            title="Estadísticas avanzadas"
+            subtitle="Impact, entry, trades, daño y utilidad"
+          >
+            <div className="grid gap-3 md:grid-cols-5">
+              <Card title="HS%" value={`${player.hsPercent}%`} />
+              <Card title="Diff" value={player.diff} />
+              <Card title="Kills" value={player.kills} />
+              <Card title="Deaths" value={player.deaths} />
+              <Card title="Assists" value={player.assists} />
+              <Card title="Entry Kills" value={player.entryKills} />
+              <Card title="Entry Deaths" value={player.entryDeaths} />
+              <Card title="Entry Ratio" value={player.entryRatio} />
+              <Card title="Opening Duel Win%" value={`${player.openingDuelWinPercent}%`} />
+              <Card title="First Kill%" value={`${player.firstKillPercent}%`} />
+              <Card title="Trade Kill%" value={`${player.tradeKillPercent}%`} />
+              <Card title="Trade Kills" value={player.tradeKills} />
+              <Card title="Clutches" value={player.totalClutches} />
+              <Card title="Bait Rounds" value={player.baitRounds} />
+              <Card title="HE Damage" value={player.heDamage} />
+              <Card title="Flash Assists" value={player.flashAssists} />
+              <Card title="Molotov Damage" value={player.molotovDamage} />
+            </div>
+          </CompactDetails>
+
+          <CompactDetails
+            icon="📜"
+            title="Historial de partidas"
+            subtitle="Todas las partidas jugadas"
+          >
+            <div className="overflow-x-auto">
               <table className="w-full min-w-[1100px]">
-                <thead className="bg-[#151d29]">
+                <thead className="bg-black/25">
                   <tr className="text-left text-xs uppercase tracking-widest text-[#9aa4b2]">
                     <th className="px-4 py-4">Mapa</th>
                     <th className="px-4 py-4">K</th>
@@ -371,18 +494,15 @@ export default async function PlayerPage({ params }: Props) {
 
                 <tbody>
                   {playerMatches.map((match) => {
-                    const result =
-                      match.winnerTeam && match.player?.team === match.winnerTeam
-                        ? "WIN"
-                        : "LOSS";
+                    const result = getRecentResult(match);
 
                     return (
                       <tr
                         key={match.demoFile}
-                        className="border-t border-[#263241] text-sm text-zinc-200"
+                        className="border-t border-white/10 text-sm text-zinc-200"
                       >
-                        <td className="px-4 py-3 font-black text-red-400">
-                          {match.map}
+                        <td className="px-4 py-3 font-black text-yellow-400">
+                          {cleanMapName(match.map)}
                         </td>
                         <td className="px-4 py-3">{match.player?.kills}</td>
                         <td className="px-4 py-3">{match.player?.assists}</td>
@@ -403,12 +523,12 @@ export default async function PlayerPage({ params }: Props) {
                         </td>
                         <td
                           className={
-                            result === "WIN"
-                              ? "px-4 py-3 font-black text-green-400"
+                            result === "W"
+                              ? "px-4 py-3 font-black text-emerald-400"
                               : "px-4 py-3 font-black text-red-400"
                           }
                         >
-                          {result}
+                          {result === "W" ? "WIN" : "LOSS"}
                         </td>
                       </tr>
                     );
@@ -416,41 +536,18 @@ export default async function PlayerPage({ params }: Props) {
                 </tbody>
               </table>
             </div>
-          </details>
-        </section>
+          </CompactDetails>
+        </div>
 
-        <section className="mt-8 rounded-[1.5rem] border border-[#263241] bg-[#101722] p-5">
-          <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-red-500">
-            Evolución por partida
+        <footer className="py-8 text-center">
+          <p className="text-3xl font-black">
+            <span className="text-red-500">S4</span>
+            <span className="text-yellow-400">N</span>
           </p>
-
-          <PlayerCharts data={chartData} />
-        </section>
-
-        <section className="mt-8 rounded-[1.5rem] border border-[#263241] bg-[#101722] p-5">
-          <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-red-500">
-            Kills por arma
+          <p className="mt-2 text-xs text-zinc-500">
+            © 2026 Stats4Newbas. Liga privada de amigos.
           </p>
-
-          <div className="grid gap-3 md:grid-cols-4">
-            {Object.entries(player.weapons || {})
-              .sort((a, b) => Number(b[1]) - Number(a[1]))
-              .slice(0, 12)
-              .map(([weapon, kills]) => (
-                <div
-                  key={weapon}
-                  className="rounded-xl border border-[#263241] bg-black/45 p-4"
-                >
-                  <p className="text-xs uppercase tracking-widest text-zinc-500">
-                    {weapon}
-                  </p>
-                  <p className="mt-2 text-2xl font-black text-yellow-400">
-                    {Number(kills)}
-                  </p>
-                </div>
-              ))}
-          </div>
-        </section>
+        </footer>
       </section>
     </main>
   );
@@ -458,9 +555,9 @@ export default async function PlayerPage({ params }: Props) {
 
 function Card({ title, value }: { title: string; value: string | number }) {
   return (
-    <div className="rounded-xl border border-[#263241] bg-[#101722] p-4">
+    <div className="rounded-xl border border-white/10 bg-black/35 p-4">
       <p className="text-xs uppercase tracking-wider text-zinc-500">{title}</p>
-      <p className="mt-2 text-2xl font-black text-red-500">{value}</p>
+      <p className="mt-2 text-xl font-black text-red-400">{value}</p>
     </div>
   );
 }
@@ -468,16 +565,44 @@ function Card({ title, value }: { title: string; value: string | number }) {
 function MiniStat({
   title,
   value,
+  icon,
 }: {
   title: string | number;
   value: string | number;
+  icon?: string;
 }) {
   return (
-    <div className="rounded-xl border border-[#263241] bg-black/45 p-3">
+    <div className="rounded-xl border border-white/10 bg-black/35 p-3">
+      {icon && <p className="text-lg">{icon}</p>}
       <p className="text-[11px] uppercase tracking-widest text-zinc-500">
         {title}
       </p>
-      <p className="mt-1 text-lg font-black text-red-500">{value}</p>
+      <p className="mt-1 text-lg font-black text-red-400">{value}</p>
+    </div>
+  );
+}
+
+function KeyStatCard({ stat }: { stat: any }) {
+  const toneClass =
+    stat.tone === "yellow"
+      ? "border-yellow-500/50 text-yellow-400"
+      : stat.tone === "green"
+      ? "border-emerald-500/40 text-emerald-400"
+      : stat.tone === "purple"
+      ? "border-violet-500/40 text-violet-400"
+      : stat.tone === "blue"
+      ? "border-blue-500/40 text-blue-400"
+      : stat.tone === "orange"
+      ? "border-orange-500/40 text-orange-400"
+      : "border-red-500/40 text-red-400";
+
+  return (
+    <div className={`rounded-xl border bg-black/35 p-4 text-center ${toneClass}`}>
+      <p className="text-xs font-black uppercase tracking-widest text-zinc-400">
+        {stat.title}
+      </p>
+      <p className="mt-3 text-3xl font-black">{stat.value}</p>
+      <p className="mt-3 text-xs text-zinc-500">{stat.sub}</p>
     </div>
   );
 }
@@ -497,7 +622,7 @@ function InfoCard({
 }) {
   const toneClass =
     tone === "green"
-      ? "border-green-500/40 bg-green-500/10 text-green-400"
+      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
       : tone === "red"
       ? "border-red-500/40 bg-red-500/10 text-red-400"
       : "border-yellow-500/40 bg-yellow-500/10 text-yellow-400";
@@ -513,8 +638,137 @@ function InfoCard({
   );
 }
 
-function getRatingColor(rating: number) {
-  if (rating >= 1.2) return "text-green-400";
-  if (rating >= 1.0) return "text-yellow-400";
-  return "text-red-500";
+function CompactDetails({
+  icon,
+  title,
+  subtitle,
+  children,
+}: {
+  icon: string;
+  title: string;
+  subtitle: string;
+  children: ReactNode;
+}) {
+  return (
+    <details className="s4n-card rounded-[1.25rem] border border-white/10 p-5">
+      <summary className="cursor-pointer list-none">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <span className="text-2xl">{icon}</span>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
+                {title}
+              </p>
+              <p className="mt-1 text-sm text-zinc-400">{subtitle}</p>
+            </div>
+          </div>
+
+          <span className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-bold text-zinc-300">
+            Ver detalles
+          </span>
+        </div>
+      </summary>
+
+      <div className="mt-5">{children}</div>
+    </details>
+  );
+}
+
+function RadarChart({
+  values,
+  points,
+}: {
+  values: { label: string; value: number }[];
+  points: string;
+}) {
+  return (
+    <div className="relative h-[300px] w-full max-w-[420px]">
+      <svg viewBox="0 0 220 220" className="mx-auto h-[260px] w-[260px]">
+        {[82, 66, 50, 34, 18].map((radius) => (
+          <circle
+            key={radius}
+            cx="110"
+            cy="110"
+            r={radius}
+            fill="none"
+            stroke="rgba(255,255,255,0.14)"
+            strokeWidth="1"
+          />
+        ))}
+
+        {[0, 60, 120, 180, 240, 300].map((angle) => {
+          const radians = (Math.PI / 180) * (angle - 90);
+          const x = 110 + 82 * Math.cos(radians);
+          const y = 110 + 82 * Math.sin(radians);
+
+          return (
+            <line
+              key={angle}
+              x1="110"
+              y1="110"
+              x2={x}
+              y2={y}
+              stroke="rgba(255,255,255,0.12)"
+              strokeWidth="1"
+            />
+          );
+        })}
+
+        <polygon
+          points={points}
+          fill="rgba(250,204,21,0.35)"
+          stroke="#facc15"
+          strokeWidth="3"
+        />
+
+        {points.split(" ").map((point) => {
+          const [x, y] = point.split(",");
+
+          return (
+            <circle
+              key={point}
+              cx={x}
+              cy={y}
+              r="4"
+              fill="#facc15"
+              stroke="#111827"
+              strokeWidth="2"
+            />
+          );
+        })}
+      </svg>
+
+      <div className="absolute left-1/2 top-0 -translate-x-1/2 text-center">
+        <RadarLabel item={values[0]} />
+      </div>
+      <div className="absolute right-0 top-[72px] text-right">
+        <RadarLabel item={values[1]} />
+      </div>
+      <div className="absolute bottom-[46px] right-3 text-right">
+        <RadarLabel item={values[2]} />
+      </div>
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-center">
+        <RadarLabel item={values[3]} />
+      </div>
+      <div className="absolute bottom-[46px] left-3 text-left">
+        <RadarLabel item={values[4]} />
+      </div>
+      <div className="absolute left-0 top-[72px] text-left">
+        <RadarLabel item={values[5]} />
+      </div>
+    </div>
+  );
+}
+
+function RadarLabel({ item }: { item: { label: string; value: number } }) {
+  return (
+    <div>
+      <p className="text-xs font-black uppercase tracking-widest text-zinc-300">
+        {item.label}
+      </p>
+      <p className="text-xs font-black text-yellow-400">
+        {Math.round(item.value)}/100
+      </p>
+    </div>
+  );
 }

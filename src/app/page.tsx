@@ -32,14 +32,14 @@ const footballTeams = [
     shortName: "Rojo",
     color: "from-red-600/25 to-black/10",
     border: "border-red-600/45",
-    members: ["76561198051821859"],
+    members: ["76561198810129628"],
   },
   {
     name: "Vélez Sarsfield",
     shortName: "Vélez",
     color: "from-blue-400/20 to-white/5",
     border: "border-sky-400/40",
-    members: ["76561198810129628"],
+    members: ["76561198051821859"],
   },
 ];
 
@@ -131,7 +131,12 @@ export default function Home() {
         score: Number((rating * 100 + kd * 25 + adr * 0.25 + mvps * 2 + clutches).toFixed(2)),
       };
     })
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => {
+      if (b.rating !== a.rating) return b.rating - a.rating;
+      if (b.kd !== a.kd) return b.kd - a.kd;
+      if (b.adr !== a.adr) return b.adr - a.adr;
+      return b.mvps - a.mvps;
+    });
 
   return (
     <main className="s4n-page min-h-screen px-4 py-5 text-white">
@@ -390,7 +395,7 @@ export default function Home() {
                 Copa de clubes S4N
               </h2>
               <p className="mt-1 text-sm text-zinc-400">
-                Agrupación por club de los jugadores de la liga, calculada con rating, K/D, ADR, MVPs y clutches.
+                Agrupación por club de los jugadores de la liga. Ordenado por Rating promedio; desempate por K/D, ADR y MVPs.
               </p>
             </div>
 
@@ -446,7 +451,7 @@ function FootballTeamCard({ team, position }: { team: any; position: number }) {
         <div className="text-right">
           <p className="text-3xl font-black text-yellow-400">{team.rating}</p>
           <p className="text-[11px] uppercase tracking-widest text-zinc-500">
-            Rating avg
+            Rating club
           </p>
         </div>
       </div>

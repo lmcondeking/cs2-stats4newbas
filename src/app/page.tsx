@@ -203,6 +203,83 @@ export default function Home() {
           </div>
         </section>
 
+        <section
+          id="desglose-individuales"
+          className="s4n-card mb-5 rounded-[1.35rem] border border-white/10 p-5"
+        >
+          <details open>
+            <summary className="cursor-pointer list-none">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
+                    🏅 Categorías individuales
+                  </p>
+                  <h2 className="text-2xl font-black text-white">
+                    Desglose completo
+                  </h2>
+                  <p className="mt-1 text-sm text-zinc-400">
+                    Todos los puestos de cada premio interno, no solo los líderes.
+                  </p>
+                </div>
+
+                <span className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-bold text-zinc-300">
+                  Abrir / cerrar
+                </span>
+              </div>
+            </summary>
+
+            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <IndividualBoard
+                title="🏆 MVP Histórico"
+                ranking={ranking.slice().sort((a, b) => b.mvps - a.mvps)}
+                getText={(p) => `${p.mvps}`}
+              />
+
+              <IndividualBoard
+                title="⚔️ Entry King"
+                ranking={ranking.slice().sort((a, b) => b.entryKills - a.entryKills)}
+                getText={(p) => `${p.entryKills}/${p.entryDeaths}`}
+              />
+
+              <IndividualBoard
+                title="👑 Clutch King"
+                ranking={ranking.slice().sort((a, b) => b.totalClutches - a.totalClutches)}
+                getText={(p) => `${p.totalClutches}`}
+              />
+
+              <IndividualBoard
+                title="🐀 Rey del Bait"
+                ranking={ranking.slice().sort((a, b) => b.baitRounds - a.baitRounds)}
+                getText={(p) => `${p.baitRounds}`}
+              />
+
+              <IndividualBoard
+                title="🎯 Mejor ADR"
+                ranking={ranking.slice().sort((a, b) => b.adr - a.adr)}
+                getText={(p) => `${p.adr}`}
+              />
+
+              <IndividualBoard
+                title="💀 Mejor K/D"
+                ranking={ranking.slice().sort((a, b) => b.kd - a.kd)}
+                getText={(p) => `${p.kd}`}
+              />
+
+              <IndividualBoard
+                title="🧠 Mejor KAST"
+                ranking={ranking.slice().sort((a, b) => b.kastPercent - a.kastPercent)}
+                getText={(p) => `${p.kastPercent}%`}
+              />
+
+              <IndividualBoard
+                title="🎯 HS%"
+                ranking={ranking.slice().sort((a, b) => b.hsPercent - a.hsPercent)}
+                getText={(p) => `${p.hsPercent}%`}
+              />
+            </div>
+          </details>
+        </section>
+
         <section id="partidas" className="s4n-card mb-5 rounded-[1.35rem] border border-white/10 p-5">
           <details>
             <summary className="cursor-pointer list-none">
@@ -229,6 +306,71 @@ export default function Home() {
         </section>
       </section>
     </main>
+  );
+}
+
+function IndividualBoard({
+  title,
+  ranking,
+  getText,
+}: {
+  title: string;
+  ranking: any[];
+  getText: (player: any) => string;
+}) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-black/30 p-4">
+      <h3 className="mb-3 text-sm font-black text-white">{title}</h3>
+
+      <div className="space-y-2">
+        {ranking.map((p, index) => (
+          <Link
+            key={p.steamid}
+            href={`/player/${p.steamid}`}
+            className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 transition hover:border-yellow-500/35 hover:bg-yellow-500/5"
+          >
+            <div className="flex min-w-0 items-center gap-2">
+              <span
+                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-black ${
+                  index === 0
+                    ? "bg-yellow-500 text-black"
+                    : index === 1
+                    ? "bg-zinc-300 text-black"
+                    : index === 2
+                    ? "bg-orange-600 text-white"
+                    : "bg-zinc-800 text-zinc-300"
+                }`}
+              >
+                {index + 1}
+              </span>
+
+              <span className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full border border-white/10">
+                <Image
+                  src={getPlayerAvatar(p.steamid)}
+                  alt={p.name}
+                  fill
+                  sizes="28px"
+                  className="object-cover"
+                />
+              </span>
+
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-black text-white">
+                  {p.name}
+                </span>
+                <span className="text-[10px] font-bold text-violet-300">
+                  GC {getPlayerGc(p)}
+                </span>
+              </span>
+            </div>
+
+            <span className="ml-3 shrink-0 text-sm font-black text-yellow-400">
+              {getText(p)}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }
 

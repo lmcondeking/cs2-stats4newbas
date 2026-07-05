@@ -12,6 +12,37 @@ const avatarMap: Record<string, string> = {
   "76561198051821859": "/avatars/tenedor.png",
 };
 
+const footballTeams = [
+  {
+    name: "River Plate",
+    shortName: "River",
+    color: "from-red-500/20 to-white/5",
+    border: "border-red-500/40",
+    members: ["76561198827102122", "76561199082720391"],
+  },
+  {
+    name: "Boca Juniors",
+    shortName: "Boca",
+    color: "from-blue-500/20 to-yellow-500/10",
+    border: "border-blue-500/40",
+    members: ["76561199037068708", "76561198072925518"],
+  },
+  {
+    name: "Independiente",
+    shortName: "Rojo",
+    color: "from-red-600/25 to-black/10",
+    border: "border-red-600/45",
+    members: ["76561198051821859"],
+  },
+  {
+    name: "Vélez Sarsfield",
+    shortName: "Vélez",
+    color: "from-blue-400/20 to-white/5",
+    border: "border-sky-400/40",
+    members: ["76561198810129628"],
+  },
+];
+
 function getPlayerAvatar(steamid?: string) {
   if (!steamid) return "/avatars/default.png";
   return avatarMap[String(steamid)] || "/avatars/default.png";
@@ -54,6 +85,53 @@ export default function Home() {
     { title: "Clutch King", icon: "👑", player: clutchLeader, stat: `${clutchLeader?.totalClutches || 0}`, label: "clutches", accent: "text-violet-400", border: "border-violet-500/35" },
     { title: "Rey del Bait", icon: "🐀", player: baitLeader, stat: `${baitLeader?.baitRounds || 0}`, label: "bait rounds", accent: "text-orange-400", border: "border-orange-500/35" },
   ];
+
+  const teamRanking = footballTeams
+    .map((team) => {
+      const members = ranking.filter((player) =>
+        team.members.includes(String(player.steamid))
+      );
+
+      const matches = members.reduce((acc, player) => acc + Number(player.matches || 0), 0);
+      const kills = members.reduce((acc, player) => acc + Number(player.kills || 0), 0);
+      const deaths = members.reduce((acc, player) => acc + Number(player.deaths || 0), 0);
+      const mvps = members.reduce((acc, player) => acc + Number(player.mvps || 0), 0);
+      const clutches = members.reduce((acc, player) => acc + Number(player.totalClutches || 0), 0);
+      const rating =
+        members.length > 0
+          ? Number(
+              (
+                members.reduce((acc, player) => acc + Number(player.ratingS4N || 0), 0) /
+                members.length
+              ).toFixed(2)
+            )
+          : 0;
+      const adr =
+        members.length > 0
+          ? Number(
+              (
+                members.reduce((acc, player) => acc + Number(player.adr || 0), 0) /
+                members.length
+              ).toFixed(2)
+            )
+          : 0;
+      const kd = deaths > 0 ? Number((kills / deaths).toFixed(2)) : kills;
+
+      return {
+        ...team,
+        members,
+        matches,
+        kills,
+        deaths,
+        mvps,
+        clutches,
+        rating,
+        adr,
+        kd,
+        score: Number((rating * 100 + kd * 25 + adr * 0.25 + mvps * 2 + clutches).toFixed(2)),
+      };
+    })
+    .sort((a, b) => b.score - a.score);
 
   return (
     <main className="s4n-page min-h-screen px-4 py-5 text-white">
@@ -299,6 +377,35 @@ export default function Home() {
           </details>
         </section>
 
+        <section
+          id="equipos-futbol"
+          className="s4n-card mb-5 rounded-[1.35rem] border border-white/10 p-5"
+        >
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
+                ⚽ Ranking por equipos de fútbol
+              </p>
+              <h2 className="mt-1 text-2xl font-black text-white">
+                Copa de clubes S4N
+              </h2>
+              <p className="mt-1 text-sm text-zinc-400">
+                Agrupación por club de los jugadores de la liga, calculada con rating, K/D, ADR, MVPs y clutches.
+              </p>
+            </div>
+
+            <span className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-bold text-zinc-300">
+              {teamRanking.length} clubes
+            </span>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-4">
+            {teamRanking.map((team, index) => (
+              <FootballTeamCard key={team.name} team={team} position={index + 1} />
+            ))}
+          </div>
+        </section>
+
         <section id="subir-demo" className="s4n-card rounded-[1.35rem] border border-white/10 p-5">
           <p className="text-xs uppercase tracking-[0.35em] text-red-400">Base de datos</p>
           <h2 className="mb-4 text-2xl font-black text-white">Subir Demo</h2>
@@ -306,6 +413,90 @@ export default function Home() {
         </section>
       </section>
     </main>
+  );
+}
+
+function FootballTeamCard({ team, position }: { team: any; position: number }) {
+  return (
+    <div className={`relative overflow-hidden rounded-xl border ${team.border} bg-gradient-to-br ${team.color} p-4`}>
+      <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/5 blur-2xl" />
+
+      <div className="relative flex items-start justify-between gap-3">
+        <div>
+          <div
+            className={`mb-3 flex h-8 w-8 items-center justify-center rounded-full text-sm font-black ${
+              position === 1
+                ? "bg-yellow-500 text-black"
+                : position === 2
+                ? "bg-zinc-300 text-black"
+                : position === 3
+                ? "bg-orange-600 text-white"
+                : "bg-zinc-800 text-zinc-300"
+            }`}
+          >
+            {position}
+          </div>
+
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-zinc-400">
+            {team.shortName}
+          </p>
+          <h3 className="mt-1 text-xl font-black text-white">{team.name}</h3>
+        </div>
+
+        <div className="text-right">
+          <p className="text-3xl font-black text-yellow-400">{team.rating}</p>
+          <p className="text-[11px] uppercase tracking-widest text-zinc-500">
+            Rating avg
+          </p>
+        </div>
+      </div>
+
+      <div className="relative mt-4 flex -space-x-2">
+        {team.members.map((player: any) => (
+          <Link
+            key={player.steamid}
+            href={`/player/${player.steamid}`}
+            className="relative h-10 w-10 overflow-hidden rounded-full border-2 border-black bg-black"
+            title={player.name}
+          >
+            <Image
+              src={getPlayerAvatar(player.steamid)}
+              alt={player.name}
+              fill
+              sizes="40px"
+              className="object-cover"
+            />
+          </Link>
+        ))}
+      </div>
+
+      <div className="relative mt-4 grid grid-cols-2 gap-2">
+        <TeamStat title="K/D" value={team.kd} />
+        <TeamStat title="ADR" value={team.adr} />
+        <TeamStat title="Kills" value={team.kills} />
+        <TeamStat title="MVPs" value={team.mvps} />
+      </div>
+
+      <div className="relative mt-4 rounded-lg border border-white/10 bg-black/25 p-3">
+        <p className="text-[11px] font-black uppercase tracking-widest text-zinc-500">
+          Plantel
+        </p>
+        <p className="mt-1 truncate text-sm font-bold text-zinc-200">
+          {team.members.map((player: any) => player.name).join(" · ")}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function TeamStat({ title, value }: { title: string; value: string | number }) {
+  return (
+    <div className="rounded-lg border border-white/10 bg-black/25 px-3 py-2">
+      <p className="text-[10px] uppercase tracking-widest text-zinc-500">
+        {title}
+      </p>
+      <p className="text-sm font-black text-white">{value}</p>
+    </div>
   );
 }
 

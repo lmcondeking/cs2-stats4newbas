@@ -138,6 +138,54 @@ export default function Home() {
       return b.mvps - a.mvps;
     });
 
+  const latestMatch = latestMatches[0];
+  const biggestRise = ranking
+    .slice()
+    .sort((a, b) => Number(b.formDelta || 0) - Number(a.formDelta || 0))[0];
+  const biggestDrop = ranking
+    .slice()
+    .sort((a, b) => Number(a.formDelta || 0) - Number(b.formDelta || 0))[0];
+
+  const activityFeed = [
+    teamRanking[0]
+      ? {
+          icon: "🏆",
+          title: `${teamRanking[0].name} lidera la Copa de Clubes`,
+          detail: `Rating promedio ${teamRanking[0].rating}`,
+          tone: "yellow",
+        }
+      : null,
+    biggestRise && Number(biggestRise.formDelta || 0) > 0
+      ? {
+          icon: "▲",
+          title: `${biggestRise.name} es quien más creció`,
+          detail: `+${Number(biggestRise.formDelta).toFixed(2)} de forma reciente`,
+          tone: "green",
+        }
+      : null,
+    biggestDrop && Number(biggestDrop.formDelta || 0) < 0
+      ? {
+          icon: "▼",
+          title: `${biggestDrop.name} necesita recuperarse`,
+          detail: `${Number(biggestDrop.formDelta).toFixed(2)} de variación`,
+          tone: "red",
+        }
+      : null,
+    latestMatch
+      ? {
+          icon: "🎮",
+          title: `Última demo: ${formatMapName(latestMatch.map)}`,
+          detail: `${latestMatch.rounds} rondas · MVP ${latestMatch.mvp?.name || "Sin MVP"}`,
+          tone: "blue",
+        }
+      : null,
+  ].filter(Boolean) as {
+    icon: string;
+    title: string;
+    detail: string;
+    tone: "yellow" | "green" | "red" | "blue";
+  }[];
+
   return (
     <main className="s4n-page min-h-screen px-4 py-5 text-white">
       <section className="mx-auto max-w-7xl">
@@ -169,12 +217,28 @@ export default function Home() {
           <div className="s4n-card relative overflow-hidden rounded-[1.6rem] border border-white/10 p-6">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(239,68,68,0.24),transparent_34%),radial-gradient(circle_at_90%_20%,rgba(245,158,11,0.14),transparent_30%)]" />
             <div className="relative">
-              <p className="mb-4 inline-flex rounded-full border border-red-500/45 bg-red-500/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.3em] text-red-300">Liga privada de amigos</p>
-              <h1 className="text-5xl font-black leading-none tracking-tight md:text-6xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="inline-flex rounded-full border border-red-500/45 bg-red-500/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.3em] text-red-300">
+                  Liga privada · Temporada 2026
+                </p>
+                {teamRanking[0] && (
+                  <span className="rounded-full border border-yellow-500/30 bg-yellow-500/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-yellow-300">
+                    {teamRanking[0].shortName} lidera
+                  </span>
+                )}
+              </div>
+
+              <h1 className="mt-4 text-5xl font-black leading-[0.92] tracking-tight md:text-7xl">
                 CS2
-                <span className="block bg-gradient-to-r from-red-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">Stats4Newbas</span>
+                <span className="block bg-gradient-to-r from-red-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
+                  Stats4Newbas
+                </span>
               </h1>
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-zinc-300">Estadísticas reales leídas desde demos de CS2. Ranking, perfiles, evolución, mapas y categorías individuales de la liga.</p>
+
+              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-300 md:text-base">
+                El centro estadístico de nuestra liga: rendimiento, evolución, clubes,
+                mapas y actividad reciente en un solo lugar.
+              </p>
               <div className="mt-5 grid gap-3 sm:grid-cols-4">
                 <SeasonStat icon="🎮" title="Partidas" value={matches.length} />
                 <SeasonStat icon="👥" title="Jugadores" value={ranking.length} />
@@ -202,6 +266,29 @@ export default function Home() {
                 </Link>
               ) : <p className="mt-6 text-zinc-400">Sin datos</p>}
             </div>
+          </div>
+        </section>
+
+        <section className="s4n-card mb-5 rounded-[1.35rem] border border-white/10 p-5">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
+                Centro de actividad
+              </p>
+              <h2 className="mt-1 text-2xl font-black text-white">
+                Lo que está pasando en la liga
+              </h2>
+            </div>
+
+            <span className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-xs font-black uppercase tracking-widest text-zinc-400">
+              Actualizado con las demos
+            </span>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {activityFeed.map((item) => (
+              <ActivityCard key={`${item.title}-${item.detail}`} item={item} />
+            ))}
           </div>
         </section>
 
@@ -392,10 +479,10 @@ export default function Home() {
                 ⚽ Ranking por equipos de fútbol
               </p>
               <h2 className="mt-1 text-2xl font-black text-white">
-                Copa de clubes S4N
+                Tabla de Clubes S4N
               </h2>
               <p className="mt-1 text-sm text-zinc-400">
-                Agrupación por club de los jugadores de la liga. Ordenado por Rating promedio; desempate por K/D, ADR y MVPs.
+                La competencia paralela de la liga. Orden por rating promedio, con desempate por K/D, ADR y MVPs.
               </p>
             </div>
 
@@ -418,6 +505,42 @@ export default function Home() {
         </section>
       </section>
     </main>
+  );
+}
+
+function ActivityCard({
+  item,
+}: {
+  item: {
+    icon: string;
+    title: string;
+    detail: string;
+    tone: "yellow" | "green" | "red" | "blue";
+  };
+}) {
+  const tone =
+    item.tone === "yellow"
+      ? "border-yellow-500/35 bg-yellow-500/5 text-yellow-400"
+      : item.tone === "green"
+      ? "border-emerald-500/35 bg-emerald-500/5 text-emerald-400"
+      : item.tone === "red"
+      ? "border-red-500/35 bg-red-500/5 text-red-400"
+      : "border-blue-500/35 bg-blue-500/5 text-blue-400";
+
+  return (
+    <div className={`rounded-xl border p-4 ${tone}`}>
+      <div className="flex items-start gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-black/30 text-lg">
+          {item.icon}
+        </span>
+        <div>
+          <p className="text-sm font-black text-white">{item.title}</p>
+          <p className="mt-1 text-xs leading-relaxed text-zinc-400">
+            {item.detail}
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 

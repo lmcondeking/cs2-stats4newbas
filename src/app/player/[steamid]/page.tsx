@@ -111,7 +111,13 @@ export default async function PlayerPage({ params }: Props) {
 
   const recentMatches = playerMatches.slice(-11);
   const comparePlayer =
-    ranking.find((p) => String(p.steamid) !== String(player.steamid)) || null;
+    ranking
+      .filter((p) => String(p.steamid) !== String(player.steamid))
+      .sort(
+        (a, b) =>
+          Math.abs(Number(a.ratingS4N || 0) - Number(player.ratingS4N || 0)) -
+          Math.abs(Number(b.ratingS4N || 0) - Number(player.ratingS4N || 0))
+      )[0] || null;
 
   const comparisonRows = comparePlayer
     ? [
@@ -189,19 +195,19 @@ export default async function PlayerPage({ params }: Props) {
         <section className="s4n-card relative overflow-hidden rounded-[1.35rem] border border-white/10 p-5">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_5%,rgba(239,68,68,0.20),transparent_34%),radial-gradient(circle_at_90%_15%,rgba(245,158,11,0.10),transparent_30%)]" />
 
-          <div className="relative grid gap-6 lg:grid-cols-[1.45fr_0.85fr]">
+          <div className="relative grid gap-4 lg:grid-cols-[1.5fr_0.75fr]">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-red-400">
                 Perfil de jugador
               </p>
 
-              <div className="mt-4 flex flex-wrap items-center gap-5">
-                <div className="relative h-20 w-20 overflow-hidden rounded-2xl border border-violet-500/40 bg-black shadow-xl shadow-violet-950/30">
+              <div className="mt-3 flex flex-wrap items-center gap-4">
+                <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-violet-500/40 bg-black shadow-xl shadow-violet-950/30">
                   <Image
                     src={getPlayerAvatar(String(player.steamid))}
                     alt={player.name}
                     fill
-                    sizes="80px"
+                    sizes="64px"
                     className="object-cover"
                     priority
                   />
@@ -213,11 +219,11 @@ export default async function PlayerPage({ params }: Props) {
                       {gc}
                     </span>
 
-                    <h1 className="text-3xl font-black tracking-tight text-white md:text-4xl">
+                    <h1 className="text-2xl font-black tracking-tight text-white md:text-3xl">
                       {player.name}
                     </h1>
 
-                    <span className="text-4xl text-zinc-300">☆</span>
+                    <span className="text-3xl text-zinc-300">☆</span>
 
                     <span className="inline-flex items-center gap-2 rounded-md bg-violet-600/90 px-3 py-1 text-xs font-black text-white shadow-lg shadow-violet-900/30">
                       <span className="h-2 w-2 rounded-full bg-violet-100 shadow-[0_0_8px_rgba(221,214,254,0.9)]" />
@@ -234,13 +240,13 @@ export default async function PlayerPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="rounded-[1.35rem] border border-white/10 bg-black/35 p-5 text-center">
+            <div className="rounded-[1.1rem] border border-white/10 bg-black/35 p-4 text-center">
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[#9aa4b2]">
                 Rating S4N
               </p>
 
               <p
-                className={`mt-2 text-5xl font-black ${getRatingColor(
+                className={`mt-1 text-4xl font-black ${getRatingColor(
                   Number(player.ratingS4N)
                 )}`}
               >
@@ -358,6 +364,15 @@ export default async function PlayerPage({ params }: Props) {
         </section>
 
         <section className="s4n-card mt-5 rounded-[1.35rem] border border-white/10 p-5">
+          <div className="grid gap-3 md:grid-cols-4">
+            <RecordCard title="Mejor mapa" value={player.bestMap ? cleanMapName(player.bestMap.map) : "—"} detail={player.bestMap ? `${player.bestMap.ratingS4N} rating` : "Sin datos"} />
+            <RecordCard title="Arma principal" value={player.favoriteWeapon ? String(player.favoriteWeapon.weapon).toUpperCase() : "—"} detail={player.favoriteWeapon ? `${player.favoriteWeapon.kills} kills` : "Sin datos"} />
+            <RecordCard title="Mejor racha" value={`${recentMatches.filter((m) => getRecentResult(m) === "W").length} W`} detail={`Últimas ${recentMatches.length} partidas`} />
+            <RecordCard title="Diferencia K/D" value={player.diff} detail={`${player.kills} K · ${player.deaths} D`} />
+          </div>
+        </section>
+
+        <section className="s4n-card mt-5 rounded-[1.35rem] border border-white/10 p-5">
           <div className="grid gap-5 lg:grid-cols-[0.82fr_1.18fr]">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
@@ -386,7 +401,7 @@ export default async function PlayerPage({ params }: Props) {
                     Comparativa rápida
                   </p>
                   <h2 className="text-2xl font-black text-white">
-                    Vs jugador cercano
+                    Duelo estadístico
                   </h2>
                 </div>
 
@@ -395,7 +410,7 @@ export default async function PlayerPage({ params }: Props) {
                     href={`/player/${comparePlayer.steamid}`}
                     className="text-sm font-bold text-zinc-400 transition hover:text-white"
                   >
-                    Ver rival →
+                    Abrir perfil →
                   </Link>
                 )}
               </div>
@@ -461,8 +476,8 @@ export default async function PlayerPage({ params }: Props) {
         <div className="mt-5 grid gap-3">
           <CompactDetails
             icon="📈"
-            title="Evolución y gráficos"
-            subtitle="Rating, ADR y K/D por partida"
+            title="Evolución del jugador"
+            subtitle="Selector de Rating, ADR y K/D por partida"
           >
             <PlayerCharts data={chartData} />
           </CompactDetails>
@@ -630,6 +645,26 @@ export default async function PlayerPage({ params }: Props) {
         </footer>
       </section>
     </main>
+  );
+}
+
+function RecordCard({
+  title,
+  value,
+  detail,
+}: {
+  title: string;
+  value: string | number;
+  detail: string;
+}) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-black/30 p-4">
+      <p className="text-[11px] font-black uppercase tracking-[0.25em] text-zinc-500">
+        {title}
+      </p>
+      <p className="mt-2 text-2xl font-black text-yellow-400">{value}</p>
+      <p className="mt-1 text-xs text-zinc-400">{detail}</p>
+    </div>
   );
 }
 

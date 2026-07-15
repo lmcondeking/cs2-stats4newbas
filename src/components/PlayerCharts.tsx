@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -28,16 +29,14 @@ const chartConfig: Record<
     title: string;
     subtitle: string;
     color: string;
-    glow: string;
-    reference?: number;
-    domain?: [number | "auto", number | "auto"];
+    reference: number;
+    domain: [number | "auto", number | "auto"];
   }
 > = {
   rating: {
     title: "Rating S4N",
-    subtitle: "Evolución del rendimiento general",
+    subtitle: "Rendimiento general por partida",
     color: "#fbbf24",
-    glow: "shadow-yellow-500/10",
     reference: 1,
     domain: [0, "auto"],
   },
@@ -45,7 +44,6 @@ const chartConfig: Record<
     title: "ADR",
     subtitle: "Daño promedio por ronda",
     color: "#22c55e",
-    glow: "shadow-green-500/10",
     reference: 80,
     domain: [0, "auto"],
   },
@@ -53,185 +51,142 @@ const chartConfig: Record<
     title: "K/D Ratio",
     subtitle: "Relación kills / muertes",
     color: "#3b82f6",
-    glow: "shadow-blue-500/10",
     reference: 1,
     domain: [0, "auto"],
   },
 };
 
 export default function PlayerCharts({ data }: Props) {
+  const [active, setActive] = useState<ChartKey>("rating");
+  const config = chartConfig[active];
   const last = data[data.length - 1];
+  const lastValue = last ? Number(last[active] || 0) : 0;
+
+  const average = useMemo(() => {
+    if (!data.length) return 0;
+    return Number(
+      (
+        data.reduce((acc, item) => acc + Number(item[active] || 0), 0) /
+        data.length
+      ).toFixed(2)
+    );
+  }, [active, data]);
+
+  const trend = Number((lastValue - average).toFixed(2));
 
   return (
-    <div className="grid gap-5 md:grid-cols-2">
-      <ChartCard data={data} chartKey="rating" highlight={last?.rating} />
-      <ChartCard data={data} chartKey="adr" highlight={last?.adr} />
-      <ChartCard data={data} chartKey="kd" highlight={last?.kd} />
-
-      <div className="rounded-[1.35rem] border border-[#263241] bg-[#101722] p-5 shadow-xl shadow-black/20">
-        <p className="text-xs font-black uppercase tracking-[0.3em] text-red-500">
-          Lectura rápida
-        </p>
-
-        <h3 className="mt-2 text-2xl font-black text-white">
-          Forma del jugador
-        </h3>
-
-        <div className="mt-5 grid gap-3">
-          <QuickRead
-            title="Último Rating"
-            value={last ? last.rating : "0"}
-            good={Number(last?.rating || 0) >= 1}
-          />
-          <QuickRead
-            title="Último ADR"
-            value={last ? last.adr : "0"}
-            good={Number(last?.adr || 0) >= 80}
-          />
-          <QuickRead
-            title="Último K/D"
-            value={last ? last.kd : "0"}
-            good={Number(last?.kd || 0) >= 1}
-          />
-        </div>
-
-        <p className="mt-5 text-sm leading-relaxed text-zinc-400">
-          Estos gráficos muestran la evolución partida por partida. La línea
-          punteada marca una referencia saludable para comparar rápidamente si
-          el jugador viene rindiendo por encima o por debajo del promedio.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function ChartCard({
-  data,
-  chartKey,
-  highlight,
-}: {
-  data: Props["data"];
-  chartKey: ChartKey;
-  highlight?: number;
-}) {
-  const config = chartConfig[chartKey];
-
-  return (
-    <div
-      className={`rounded-[1.35rem] border border-[#263241] bg-[#101722] p-5 shadow-xl ${config.glow}`}
-    >
-      <div className="mb-4 flex items-start justify-between gap-4">
+    <section className="rounded-[1.2rem] border border-white/10 bg-black/25 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.25em] text-[#9aa4b2]">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
             Evolución por partida
           </p>
-
-          <h3 className="mt-1 text-2xl font-black text-white">
-            {config.title}
-          </h3>
-
+          <h3 className="mt-1 text-2xl font-black text-white">{config.title}</h3>
           <p className="mt-1 text-sm text-zinc-500">{config.subtitle}</p>
         </div>
 
-        <div className="rounded-xl border border-[#263241] bg-black/40 px-4 py-2 text-right">
-          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
-            Última
-          </p>
-          <p className="text-xl font-black" style={{ color: config.color }}>
-            {highlight ?? 0}
-          </p>
+        <div className="flex rounded-xl border border-white/10 bg-black/30 p-1">
+          {(Object.keys(chartConfig) as ChartKey[]).map((key) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setActive(key)}
+              className={`rounded-lg px-4 py-2 text-xs font-black uppercase tracking-wider transition ${
+                active === key
+                  ? "bg-yellow-500 text-black"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              {key === "rating" ? "Rating" : key.toUpperCase()}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="h-[230px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            data={data}
-            margin={{ top: 10, right: 14, left: -12, bottom: 0 }}
-          >
-            <CartesianGrid stroke="#263241" strokeDasharray="3 3" />
-
-            <XAxis
-              dataKey="match"
-              tick={{ fill: "#8b95a3", fontSize: 10 }}
-              axisLine={{ stroke: "#263241" }}
-              tickLine={{ stroke: "#263241" }}
-              interval="preserveStartEnd"
-            />
-
-            <YAxis
-              tick={{ fill: "#8b95a3", fontSize: 10 }}
-              axisLine={{ stroke: "#263241" }}
-              tickLine={{ stroke: "#263241" }}
-              domain={config.domain}
-            />
-
-            {config.reference !== undefined && (
+      <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_210px]">
+        <div className="h-[260px] rounded-xl border border-white/10 bg-[#09101a]/70 p-2">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={data}
+              margin={{ top: 12, right: 18, left: -10, bottom: 0 }}
+            >
+              <CartesianGrid stroke="#263241" strokeDasharray="3 3" />
+              <XAxis
+                dataKey="match"
+                tick={{ fill: "#8b95a3", fontSize: 10 }}
+                axisLine={{ stroke: "#263241" }}
+                tickLine={{ stroke: "#263241" }}
+                interval="preserveStartEnd"
+              />
+              <YAxis
+                tick={{ fill: "#8b95a3", fontSize: 10 }}
+                axisLine={{ stroke: "#263241" }}
+                tickLine={{ stroke: "#263241" }}
+                domain={config.domain}
+              />
               <ReferenceLine
                 y={config.reference}
                 stroke="#64748b"
                 strokeDasharray="4 4"
               />
-            )}
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#05080d",
+                  border: "1px solid #263241",
+                  borderRadius: "12px",
+                  color: "#ffffff",
+                }}
+                labelStyle={{ color: "#cbd5e1", fontWeight: 800 }}
+                itemStyle={{ color: config.color, fontWeight: 800 }}
+              />
+              <Line
+                type="monotone"
+                dataKey={active}
+                stroke={config.color}
+                strokeWidth={3}
+                dot={{ r: 3, stroke: config.color, strokeWidth: 2, fill: "#05080d" }}
+                activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2, fill: config.color }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
 
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#05080d",
-                border: "1px solid #263241",
-                borderRadius: "12px",
-                color: "#ffffff",
-              }}
-              labelStyle={{ color: "#cbd5e1", fontWeight: 800 }}
-              itemStyle={{ color: config.color, fontWeight: 800 }}
-            />
+        <div className="grid content-start gap-3">
+          <Metric title="Última" value={lastValue} color={config.color} />
+          <Metric title="Promedio" value={average} color="#e5e7eb" />
+          <Metric
+            title="Vs promedio"
+            value={`${trend >= 0 ? "+" : ""}${trend}`}
+            color={trend >= 0 ? "#22c55e" : "#ef4444"}
+          />
 
-            <Line
-              type="monotone"
-              dataKey={chartKey}
-              stroke={config.color}
-              strokeWidth={3}
-              dot={{
-                r: 3,
-                stroke: config.color,
-                strokeWidth: 2,
-                fill: "#05080d",
-              }}
-              activeDot={{
-                r: 6,
-                stroke: "#ffffff",
-                strokeWidth: 2,
-                fill: config.color,
-              }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+          <p className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs leading-relaxed text-zinc-400">
+            Cambiá el indicador sin ocupar espacio con tres gráficos separados.
+            La línea punteada marca una referencia saludable.
+          </p>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
-function QuickRead({
+function Metric({
   title,
   value,
-  good,
+  color,
 }: {
   title: string;
   value: string | number;
-  good: boolean;
+  color: string;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-[#263241] bg-black/40 px-4 py-3">
-      <span className="text-sm font-bold text-zinc-300">{title}</span>
-
-      <span
-        className={`rounded-full px-3 py-1 text-sm font-black ${
-          good
-            ? "bg-green-500/15 text-green-400"
-            : "bg-red-500/15 text-red-400"
-        }`}
-      >
+    <div className="rounded-xl border border-white/10 bg-black/30 p-3">
+      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+        {title}
+      </p>
+      <p className="mt-1 text-2xl font-black" style={{ color }}>
         {value}
-      </span>
+      </p>
     </div>
   );
 }

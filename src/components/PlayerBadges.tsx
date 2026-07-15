@@ -25,11 +25,11 @@ type Props = {
     }
   
     return (
-      <div className="mt-5 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap gap-2">
         {badges.map((badge) => (
           <span
             key={badge}
-            className="rounded-full border border-red-600 bg-red-600/10 px-4 py-2 text-sm font-bold text-red-400"
+            className="rounded-full border border-yellow-500/30 bg-yellow-500/10 px-3 py-1.5 text-xs font-black text-yellow-300"
           >
             {badge}
           </span>

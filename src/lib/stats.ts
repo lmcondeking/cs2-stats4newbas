@@ -355,6 +355,7 @@ export function getDashboardStats() {
           rounds: 0,
           wins: 0,
           losses: 0,
+          kastRoundsEstimated: 0,
         };
       }
 
@@ -366,6 +367,8 @@ export function getDashboardStats() {
       mapStat.deaths += player.deaths || 0;
       mapStat.damage += player.damage || 0;
       mapStat.rounds += match.rounds || 0;
+      mapStat.kastRoundsEstimated +=
+        ((player.kastPercent || 0) / 100) * (match.rounds || 0);
 
       if (match.winnerTeam && player.team === match.winnerTeam) {
         total.wins++;
@@ -444,6 +447,10 @@ export function getDashboardStats() {
         const mapAdr = map.rounds === 0 ? 0 : map.damage / map.rounds;
         const mapWinrate =
           map.matches === 0 ? 0 : (map.wins / map.matches) * 100;
+        const mapKastPercent =
+          map.rounds === 0
+            ? 0
+            : (map.kastRoundsEstimated / map.rounds) * 100;
 
         const mapRating =
           (0.5 * mapKd + 0.5 * (mapAdr / 100)) * RATING_SCALE;
@@ -453,6 +460,7 @@ export function getDashboardStats() {
           kd: Number(mapKd.toFixed(2)),
           adr: Number(mapAdr.toFixed(2)),
           winrate: Number(mapWinrate.toFixed(2)),
+          kastPercent: Number(mapKastPercent.toFixed(2)),
           ratingS4N: Number(mapRating.toFixed(2)),
         };
       });

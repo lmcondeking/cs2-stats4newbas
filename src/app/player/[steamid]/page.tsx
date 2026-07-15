@@ -3,6 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import PlayerCharts from "@/components/PlayerCharts";
 import PlayerBadges from "@/components/PlayerBadges";
+import PlayerComparison from "@/components/PlayerComparison";
+import PlayerVisualDashboard from "@/components/PlayerVisualDashboard";
+import MapPerformanceTable from "@/components/MapPerformanceTable";
+import PlayerAIAnalyst from "@/components/PlayerAIAnalyst";
 import type { ReactNode } from "react";
 
 type Props = {
@@ -110,24 +114,7 @@ export default async function PlayerPage({ params }: Props) {
   }));
 
   const recentMatches = playerMatches.slice(-11);
-  const comparePlayer =
-    ranking
-      .filter((p) => String(p.steamid) !== String(player.steamid))
-      .sort(
-        (a, b) =>
-          Math.abs(Number(a.ratingS4N || 0) - Number(player.ratingS4N || 0)) -
-          Math.abs(Number(b.ratingS4N || 0) - Number(player.ratingS4N || 0))
-      )[0] || null;
 
-  const comparisonRows = comparePlayer
-    ? [
-        { label: "Rating", player: player.ratingS4N, rival: comparePlayer.ratingS4N },
-        { label: "K/D", player: player.kd, rival: comparePlayer.kd },
-        { label: "ADR", player: player.adr, rival: comparePlayer.adr },
-        { label: "KAST", player: `${player.kastPercent}%`, rival: `${comparePlayer.kastPercent}%` },
-        { label: "Impact", player: player.impactRating, rival: comparePlayer.impactRating },
-      ]
-    : [];
 
   const winCount = playerMatches.filter(
     (match) => match.winnerTeam && match.player?.team === match.winnerTeam
@@ -146,13 +133,7 @@ export default async function PlayerPage({ params }: Props) {
   const radarValues = [firepower, opening, trading, utility, consistency, clutching];
   const radarPoints = buildRadarPoints(radarValues);
 
-  const keyStats = [
-    { title: "Rating S4N", value: player.ratingS4N, sub: "rendimiento global", tone: "yellow" },
-    { title: "K/D Ratio", value: player.kd, sub: "kills / deaths", tone: Number(player.kd) >= 1 ? "blue" : "red" },
-    { title: "ADR", value: player.adr, sub: "daño promedio", tone: Number(player.adr) >= 80 ? "green" : "red" },
-    { title: "KAST", value: `${player.kastPercent}%`, sub: "consistencia", tone: "purple" },
-    { title: "Impact", value: player.impactRating, sub: "influencia", tone: "orange" },
-  ];
+
 
   return (
     <main className="s4n-page min-h-screen px-4 py-5 text-white">
@@ -351,17 +332,7 @@ export default async function PlayerPage({ params }: Props) {
           </div>
         </section>
 
-        <section className="s4n-card mt-5 rounded-[1.45rem] border border-white/10 p-5">
-          <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-            Estadísticas clave
-          </p>
-
-          <div className="mt-4 grid gap-3 md:grid-cols-5">
-            {keyStats.map((stat) => (
-              <KeyStatCard key={stat.title} stat={stat} />
-            ))}
-          </div>
-        </section>
+        <PlayerVisualDashboard player={player} />
 
         <section className="s4n-card mt-5 rounded-[1.35rem] border border-white/10 p-5">
           <div className="grid gap-3 md:grid-cols-4">
@@ -395,83 +366,16 @@ export default async function PlayerPage({ params }: Props) {
             </div>
 
             <div>
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
-                    Comparativa rápida
-                  </p>
-                  <h2 className="text-2xl font-black text-white">
-                    Duelo estadístico
-                  </h2>
-                </div>
-
-                {comparePlayer && (
-                  <Link
-                    href={`/player/${comparePlayer.steamid}`}
-                    className="text-sm font-bold text-zinc-400 transition hover:text-white"
-                  >
-                    Abrir perfil →
-                  </Link>
-                )}
-              </div>
-
-              {comparePlayer ? (
-                <div className="rounded-[1.2rem] border border-white/10 bg-black/30 p-4">
-                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-                    <div className="text-center">
-                      <div className="relative mx-auto h-14 w-14 overflow-hidden rounded-full border border-yellow-500/50">
-                        <Image
-                          src={getPlayerAvatar(String(player.steamid))}
-                          alt={player.name}
-                          fill
-                          sizes="56px"
-                          className="object-cover"
-                        />
-                      </div>
-                      <p className="mt-2 truncate text-sm font-black text-white">
-                        {player.name}
-                      </p>
-                    </div>
-
-                    <div className="rounded-full border border-red-500/35 bg-red-500/10 px-3 py-1 text-xs font-black text-red-300">
-                      VS
-                    </div>
-
-                    <div className="text-center">
-                      <div className="relative mx-auto h-14 w-14 overflow-hidden rounded-full border border-blue-500/50">
-                        <Image
-                          src={getPlayerAvatar(String(comparePlayer.steamid))}
-                          alt={comparePlayer.name}
-                          fill
-                          sizes="56px"
-                          className="object-cover"
-                        />
-                      </div>
-                      <p className="mt-2 truncate text-sm font-black text-white">
-                        {comparePlayer.name}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 grid gap-2">
-                    {comparisonRows.map((row) => (
-                      <CompareRow
-                        key={row.label}
-                        label={row.label}
-                        left={row.player}
-                        right={row.rival}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-xl border border-white/10 bg-black/30 p-4 text-zinc-400">
-                  No hay otro jugador disponible para comparar.
-                </div>
-              )}
+              <PlayerComparison
+                currentPlayer={player}
+                players={ranking}
+                avatarMap={avatarMap}
+              />
             </div>
           </div>
         </section>
+
+        <PlayerAIAnalyst player={player} />
 
         <div className="mt-5 grid gap-3">
           <CompactDetails
@@ -485,32 +389,9 @@ export default async function PlayerPage({ params }: Props) {
           <CompactDetails
             icon="🗺️"
             title="Rendimiento por mapa"
-            subtitle="Estadísticas y winrate en cada mapa"
+            subtitle="Rating, K/D, KAST, ADR, winrate y partidas por mapa"
           >
-            <div className="grid gap-3 md:grid-cols-4">
-              {player.mapStats?.map((map: any) => (
-                <div
-                  key={map.map}
-                  className="rounded-xl border border-white/10 bg-black/35 p-4"
-                >
-                  <p className="inline-flex rounded-md bg-yellow-500/15 px-2 py-1 text-xs font-black text-yellow-400">
-                    {cleanMapName(map.map)}
-                  </p>
-
-                  <p className="mt-3 text-sm text-zinc-400">
-                    {map.matches} partidas · WR {map.winrate}%
-                  </p>
-
-                  <p className="mt-2 text-xl font-black text-yellow-400">
-                    {map.ratingS4N} rating
-                  </p>
-
-                  <p className="mt-1 text-sm text-zinc-300">
-                    {map.kd} K/D · {map.adr} ADR
-                  </p>
-                </div>
-              ))}
-            </div>
+            <MapPerformanceTable maps={player.mapStats || []} />
           </CompactDetails>
 
           <CompactDetails

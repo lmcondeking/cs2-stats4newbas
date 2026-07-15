@@ -77,7 +77,21 @@ export default function Home() {
   const totalRounds = matches.reduce((acc, match) => acc + match.rounds, 0);
   const totalKills = ranking.reduce((acc, player) => acc + player.kills, 0);
   const topPlayer = ranking[0];
+  const secondPlayer = ranking[1];
   const latestMatches = matches.slice().reverse().slice(0, 10);
+
+  const topPlayerClub = topPlayer
+    ? footballTeams.find((team) =>
+        team.members.includes(String(topPlayer.steamid))
+      )
+    : null;
+
+  const leaderGap =
+    topPlayer && secondPlayer
+      ? Number(
+          (Number(topPlayer.ratingS4N) - Number(secondPlayer.ratingS4N)).toFixed(2)
+        )
+      : 0;
 
   const leaderCards = [
     { title: "MVP Histórico", icon: "🏆", player: mvpLeader, stat: `${mvpLeader?.mvps || 0}`, label: "MVPs", accent: "text-yellow-400", border: "border-yellow-500/35" },
@@ -179,6 +193,14 @@ export default function Home() {
           tone: "blue",
         }
       : null,
+    mvpLeader
+      ? {
+          icon: "⭐",
+          title: `${mvpLeader.name} domina los MVP`,
+          detail: `${mvpLeader.mvps} premios en la temporada`,
+          tone: "yellow",
+        }
+      : null,
   ].filter(Boolean) as {
     icon: string;
     title: string;
@@ -231,13 +253,13 @@ export default function Home() {
               <h1 className="mt-4 text-5xl font-black leading-[0.92] tracking-tight md:text-7xl">
                 CS2
                 <span className="block bg-gradient-to-r from-red-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
-                  Stats4Newbas
+                  Conardos DownLeague
                 </span>
               </h1>
 
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-300 md:text-base">
-                El centro estadístico de nuestra liga: rendimiento, evolución, clubes,
-                mapas y actividad reciente en un solo lugar.
+                Un lugar donde se reúnen 6 conos para armar un equipo de CS2
+                y jugar dentro de todas sus discapacidades.
               </p>
               <div className="mt-5 grid gap-3 sm:grid-cols-4">
                 <SeasonStat icon="🎮" title="Partidas" value={matches.length} />
@@ -261,8 +283,60 @@ export default function Home() {
                     <span className="flex h-6 w-6 items-center justify-center rounded-full border border-violet-400 text-[11px] font-black text-violet-300">{getPlayerGc(topPlayer)}</span>
                     <h2 className="whitespace-nowrap text-xl font-black text-white">{topPlayer.name}</h2>
                   </div>
-                  <p className="mt-2 text-5xl font-black text-yellow-400">{topPlayer.ratingS4N}</p>
-                  <p className="mt-2 text-sm text-zinc-400">K/D {topPlayer.kd} · ADR {topPlayer.adr}</p>
+                  <p className="mt-2 text-5xl font-black text-yellow-400">
+                    {topPlayer.ratingS4N}
+                  </p>
+                  <p className="mt-2 text-sm text-zinc-400">
+                    K/D {topPlayer.kd} · ADR {topPlayer.adr}
+                  </p>
+
+                  <div className="mt-4 flex justify-center gap-2">
+                    {(topPlayer.recentResults || []).slice(-5).map((result: string, index: number) => (
+                      <span
+                        key={`${result}-${index}`}
+                        className={`flex h-7 w-7 items-center justify-center rounded-md border text-[10px] font-black ${
+                          result === "WIN"
+                            ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-400"
+                            : result === "LOSS"
+                            ? "border-red-500/40 bg-red-500/15 text-red-400"
+                            : "border-zinc-600 bg-zinc-800 text-zinc-400"
+                        }`}
+                      >
+                        {result === "WIN" ? "W" : result === "LOSS" ? "L" : "–"}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    <LeaderDetail label="KAST" value={`${topPlayer.kastPercent}%`} />
+                    <LeaderDetail label="Impact" value={topPlayer.impactRating} />
+                    <LeaderDetail label="MVPs" value={topPlayer.mvps} />
+                  </div>
+
+                  <div className="mt-4 rounded-xl border border-white/10 bg-black/25 p-3 text-left">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                          Club
+                        </p>
+                        <p className="mt-1 text-sm font-black text-white">
+                          {topPlayerClub?.name || "Sin club"}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                          Ventaja
+                        </p>
+                        <p className="mt-1 text-sm font-black text-yellow-400">
+                          +{leaderGap.toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <span className="mt-4 inline-flex text-xs font-black uppercase tracking-widest text-yellow-300">
+                    Ver perfil completo →
+                  </span>
                 </Link>
               ) : <p className="mt-6 text-zinc-400">Sin datos</p>}
             </div>
@@ -505,6 +579,23 @@ export default function Home() {
         </section>
       </section>
     </main>
+  );
+}
+
+function LeaderDetail({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div className="rounded-lg border border-white/10 bg-black/25 px-2 py-2">
+      <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">
+        {label}
+      </p>
+      <p className="mt-1 text-sm font-black text-white">{value}</p>
+    </div>
   );
 }
 

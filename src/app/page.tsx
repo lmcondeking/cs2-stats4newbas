@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getDashboardStats } from "@/lib/stats";
-import DemoUploader from "@/components/DemoUploader";
 
 const avatarMap: Record<string, string> = {
   "76561198810129628": "/avatars/conde.png",
@@ -97,7 +96,7 @@ export default function Home() {
     { title: "MVP Histórico", icon: "🏆", player: mvpLeader, stat: `${mvpLeader?.mvps || 0}`, label: "MVPs", accent: "text-yellow-400", border: "border-yellow-500/35" },
     { title: "Entry King", icon: "⚔️", player: entryLeader, stat: `${entryLeader?.entryKills || 0}`, label: "entradas", accent: "text-red-400", border: "border-red-500/35" },
     { title: "Clutch King", icon: "👑", player: clutchLeader, stat: `${clutchLeader?.totalClutches || 0}`, label: "clutches", accent: "text-violet-400", border: "border-violet-500/35" },
-    { title: "Rey del Bait", icon: "🐀", player: baitLeader, stat: `${baitLeader?.baitRounds || 0}`, label: "bait rounds", accent: "text-orange-400", border: "border-orange-500/35" },
+    { title: "Último en Pie", icon: "🛡️", player: baitLeader, stat: `${baitLeader?.baitRounds || 0}`, label: "rondas como último vivo", accent: "text-orange-400", border: "border-orange-500/35" },
   ];
 
   const teamRanking = footballTeams
@@ -221,7 +220,6 @@ export default function Home() {
               <a href="#ranking" className="border-b-2 border-yellow-400 pb-2 text-white">Ranking</a>
               <a href="#individuales" className="transition hover:text-white">Individuales</a>
               <a href="#partidas" className="transition hover:text-white">Partidas</a>
-              <a href="#subir-demo" className="transition hover:text-white">Subir Demo</a>
             </nav>
 
             <div className="hidden items-center gap-3 md:flex">
@@ -250,7 +248,7 @@ export default function Home() {
                 )}
               </div>
 
-              <h1 className="mt-4 text-5xl font-black leading-[0.92] tracking-tight md:text-7xl">
+              <h1 className="mt-4 pb-2 text-5xl font-black leading-[1.05] tracking-tight md:text-6xl">
                 CS2
                 <span className="block bg-gradient-to-r from-red-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
                   Conardos DownLeague
@@ -349,7 +347,7 @@ export default function Home() {
               <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
                 Centro de actividad
               </p>
-              <h2 className="mt-1 text-2xl font-black text-white">
+              <h2 className="mt-1 text-xl font-black text-white md:text-2xl">
                 Lo que está pasando en la liga
               </h2>
             </div>
@@ -393,7 +391,7 @@ export default function Home() {
             <div className="mb-4 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">🏅 Categorías individuales</p>
-                <h2 className="mt-1 text-2xl font-black text-white">Premios del mes</h2>
+                <h2 className="mt-1 text-2xl font-black text-white">Premios de la Season 2026</h2>
               </div>
               <a href="#ranking" className="text-sm font-bold text-zinc-400 hover:text-white">Ver ranking →</a>
             </div>
@@ -492,7 +490,7 @@ export default function Home() {
               />
 
               <IndividualBoard
-                title="🐀 Rey del Bait"
+                title="🛡️ Último en Pie"
                 ranking={ranking.slice().sort((a, b) => b.baitRounds - a.baitRounds)}
                 getText={(p) => `${p.baitRounds}`}
               />
@@ -572,11 +570,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="subir-demo" className="s4n-card rounded-[1.35rem] border border-white/10 p-5">
-          <p className="text-xs uppercase tracking-[0.35em] text-red-400">Base de datos</p>
-          <h2 className="mb-4 text-2xl font-black text-white">Subir Demo</h2>
-          <DemoUploader />
-        </section>
+
       </section>
     </main>
   );

@@ -170,6 +170,31 @@ function calculateRatingS4N({
   return rawRatingS4N * RATING_SCALE;
 }
 
+function calculateInternalMatchRating(player: Player, rounds: number) {
+  const kd =
+    (player.deaths || 0) === 0
+      ? player.kills || 0
+      : (player.kills || 0) / (player.deaths || 1);
+  const adr = rounds === 0 ? 0 : (player.damage || 0) / Math.max(1, rounds);
+  const hsPercent =
+    (player.kills || 0) === 0
+      ? 0
+      : ((player.headshots || 0) / Math.max(1, player.kills || 0)) * 100;
+  const entryRatio =
+    (player.entryDeaths || 0) === 0
+      ? player.entryKills || 0
+      : (player.entryKills || 0) / Math.max(1, player.entryDeaths || 0);
+
+  return calculateRatingS4N({
+    kd,
+    adr,
+    hsPercent,
+    entryRatio,
+    clutches: player.totalClutches || 0,
+    rounds,
+  });
+}
+
 export function getDashboardStats() {
   const matchesFolder = path.join(process.cwd(), "data", "matches");
 
@@ -191,12 +216,33 @@ export function getDashboardStats() {
   const matches: Match[] = files.map((file) => {
     const filePath = path.join(matchesFolder, file);
     const match = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    const internalPlayers: Player[] = (match.players as Player[]).filter(
+      (player: Player) =>
+        allowedSteamIds.includes(String(player.steamid))
+    );
+
+    const internalMvp = internalPlayers
+      .map((player: Player) => ({
+        player,
+        score: calculateInternalMatchRating(player, match.rounds || 0),
+      }))
+      .sort(
+        (
+          a: { player: Player; score: number },
+          b: { player: Player; score: number }
+        ) => b.score - a.score
+      )[0];
 
     return {
       ...match,
-      players: match.players.filter((player: Player) =>
-        allowedSteamIds.includes(String(player.steamid))
-      ),
+      players: internalPlayers,
+      mvp: internalMvp
+        ? {
+            name: internalMvp.player.name,
+            steamid: internalMvp.player.steamid,
+            mvpScore: roundNumber(internalMvp.score),
+          }
+        : undefined,
     };
   });
 

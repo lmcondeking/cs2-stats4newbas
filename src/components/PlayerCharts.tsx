@@ -81,7 +81,7 @@ export default function PlayerCharts({ data }: Props) {
           <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
             Evolución por partida
           </p>
-          <h3 className="mt-1 text-2xl font-black text-white">{config.title}</h3>
+          <h3 className="mt-1 text-xl font-black text-white">{config.title}</h3>
           <p className="mt-1 text-sm text-zinc-500">{config.subtitle}</p>
         </div>
 
@@ -103,8 +103,8 @@ export default function PlayerCharts({ data }: Props) {
         </div>
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_210px]">
-        <div className="h-[260px] rounded-xl border border-white/10 bg-[#09101a]/70 p-2">
+      <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_185px]">
+        <div className="h-[230px] rounded-xl border border-white/10 bg-[#09101a]/70 p-2">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={data}

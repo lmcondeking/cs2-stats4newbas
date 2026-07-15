@@ -11,7 +11,7 @@ export default function MapPerformanceTable({ maps }: { maps: MapStat[] }) {
 
   return (
     <div className="overflow-hidden rounded-xl border border-white/10 bg-black/25">
-      <div className="hidden grid-cols-[160px_80px_1fr_1fr_1fr_1fr_90px] gap-4 border-b border-white/10 bg-white/[0.03] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-500 md:grid">
+      <div className="hidden grid-cols-[145px_55px_1fr_1fr_1fr_1fr_75px] gap-3 border-b border-white/10 bg-white/[0.03] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-500 md:grid">
         <span>Mapa</span>
         <span>PJ</span>
         <span>Rating</span>
@@ -25,7 +25,7 @@ export default function MapPerformanceTable({ maps }: { maps: MapStat[] }) {
         {sortedMaps.map((map, index) => (
           <div
             key={map.map}
-            className="grid gap-3 px-4 py-4 md:grid-cols-[160px_80px_1fr_1fr_1fr_1fr_90px] md:items-center md:gap-4"
+            className="grid gap-3 px-3 py-3 md:grid-cols-[145px_55px_1fr_1fr_1fr_1fr_75px] md:items-center md:gap-3"
           >
             <div>
               <div className="flex items-center gap-2">
@@ -38,7 +38,7 @@ export default function MapPerformanceTable({ maps }: { maps: MapStat[] }) {
                       : "bg-yellow-400"
                   }`}
                 />
-                <p className="font-black text-white">{cleanMap(map.map)}</p>
+                <p className="truncate text-sm font-black text-white">{cleanMap(map.map)}</p>
               </div>
               <p className="mt-1 text-[10px] uppercase tracking-widest text-zinc-500">
                 {index === 0 ? "Mejor mapa" : index === sortedMaps.length - 1 ? "A mejorar" : "Rendimiento"}

@@ -73,7 +73,7 @@ export default function PlayerComparison({
           <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
             Comparador dinámico
           </p>
-          <h3 className="mt-1 text-2xl font-black text-white">Duelo estadístico</h3>
+          <h3 className="mt-1 text-xl font-black text-white">Duelo estadístico</h3>
         </div>
 
         <label className="min-w-[220px]">
@@ -144,7 +144,7 @@ function PlayerHead({
   return (
     <div className="text-center">
       <div
-        className={`relative mx-auto h-16 w-16 overflow-hidden rounded-full border-2 ${
+        className={`relative mx-auto h-14 w-14 overflow-hidden rounded-full border-2 ${
           accent === "yellow" ? "border-yellow-500/60" : "border-blue-500/60"
         }`}
       >
@@ -152,11 +152,11 @@ function PlayerHead({
           src={avatar(String(player.steamid), avatarMap)}
           alt={player.name}
           fill
-          sizes="64px"
+          sizes="56px"
           className="object-cover"
         />
       </div>
-      <p className="mt-2 truncate text-sm font-black text-white">{player.name}</p>
+      <p className="mt-2 max-w-[150px] truncate text-xs font-black text-white">{player.name}</p>
       <p className="text-xs text-zinc-500">GC {player.gcLevel || "–"}</p>
     </div>
   );
@@ -181,7 +181,7 @@ function VersusMetric({
 
   return (
     <div className="rounded-xl border border-white/10 bg-white/[0.025] px-3 py-3">
-      <div className="mb-2 grid grid-cols-[1fr_90px_1fr] items-center gap-3">
+      <div className="mb-2 grid grid-cols-[1fr_72px_1fr] items-center gap-3">
         <p className={`text-right text-sm font-black ${leftWins ? "text-yellow-400" : "text-zinc-300"}`}>
           {left}{suffix}
         </p>

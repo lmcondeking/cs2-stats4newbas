@@ -28,18 +28,42 @@ export default function PlayerAIAnalyst({ player }: { player: Player }) {
   if (!strengths.length) strengths.push("tiene margen para evolucionar rápido si ordena su juego");
   if (!weaknesses.length) weaknesses.push("su principal reto es sostener este nivel durante más partidas");
 
+  const steamid = String(player.steamid || "");
+
   let headline = `${player.name} presenta un perfil equilibrado y competitivo.`;
   let roast = "No hay descanso: en la DownLeague siempre hay algo para corregir.";
 
-  if (isLudo) {
+  if (steamid === "76561198827102122") {
+    headline = "TOMI suele respaldar el personaje con números fuertes y mucha presencia en las rondas.";
+    roast =
+      Number(player.kd) >= 1.2
+        ? "Juega bárbaro, aunque cada tanto se agranda tanto que parece que la demo viene con una cámara exclusiva para él."
+        : "Consejo premium: menos pose de estrella y un poquito más de supervivencia cuando la ronda se complica.";
+  } else if (steamid === "76561198810129628") {
+    headline = "kingC aporta agresividad y momentos de impacto, aunque su regularidad todavía negocia partido a partido.";
+    roast =
+      Number(player.openingDuelWinPercent) >= 50
+        ? "Entra con decisión; el problema es que a veces entra tan rápido que el resto del equipo todavía está comprando."
+        : "Ser entry no significa donar la primera baja y después dirigir la ronda desde Discord.";
+  } else if (steamid === "76561199082720391") {
+    headline = "Nicolas tiene ráfagas de buen Counter y puede inclinar partidas cuando encuentra confianza.";
+    roast =
+      Number(player.adr) >= 75
+        ? "Cuando prende, pega fuerte; cuando no, parece que está esperando que Steam le habilite el mouse."
+        : "Consejo amistoso: el daño también cuenta aunque la kill no quede linda para el clip.";
+  } else if (steamid === "76561198051821859") {
+    headline = "Tenedor de Sopa es impredecible: puede sorprender al rival y también a sus propios compañeros.";
+    roast =
+      Number(player.kd) >= 1
+        ? "Está mejorando; ahora falta resolver el misterio de por qué algunas rotaciones tardan lo mismo que cocinar un guiso."
+        : "El apodo ya avisaba: con un tenedor la sopa cuesta. Igual, apuntar al rival facilitaría bastante el proceso.";
+  } else if (isLudo) {
     headline = "Ludo tiene números respetables, aunque a veces parece que juega con el monitor en modo ahorro de energía.";
     roast =
       Number(player.adr) < 80
         ? "Consejo con cariño: disparar antes de morir también suma ADR, no hace falta guardar las balas para la próxima demo."
         : "Está levantando el nivel; ahora solamente falta que deje de inspeccionar el arma cuando el rival está entrando.";
-  }
-
-  if (isIluminari) {
+  } else if (isIluminari) {
     headline = "ILUMIN4RI puede ser decisivo, pero su nombre ilumina más que algunas de sus rotaciones.";
     roast =
       Number(player.tradeKillPercent) < 18
@@ -68,7 +92,7 @@ export default function PlayerAIAnalyst({ player }: { player: Player }) {
               <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
                 S4N Analyst
               </p>
-              <h2 className="text-2xl font-black text-white">Informe automático</h2>
+              <h2 className="text-xl font-black text-white">Informe automático</h2>
             </div>
           </div>
 

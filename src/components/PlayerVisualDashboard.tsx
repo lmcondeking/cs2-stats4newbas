@@ -22,12 +22,12 @@ export default function PlayerVisualDashboard({ player }: { player: Player }) {
         <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
           Panel Pro
         </p>
-        <h2 className="mt-1 text-2xl font-black text-white">
+        <h2 className="mt-1 text-xl font-black text-white">
           Rendimiento visual
         </h2>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+      <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
         <div className="grid gap-3 sm:grid-cols-2">
           {cards.map((card) => (
             <RingStat key={card.label} {...card} />
@@ -39,7 +39,7 @@ export default function PlayerVisualDashboard({ player }: { player: Player }) {
             <p className="text-xs font-black uppercase tracking-[0.25em] text-zinc-400">
               Entry Success
             </p>
-            <p className="mt-2 text-4xl font-black text-orange-400">
+            <p className="mt-2 text-3xl font-black text-orange-400">
               {player.openingDuelWinPercent}%
             </p>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
@@ -107,13 +107,13 @@ function RingStat({
     <div className="rounded-xl border border-white/10 bg-black/30 p-4">
       <div className="flex items-center gap-4">
         <div
-          className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-full"
+          className="relative flex h-20 w-20 shrink-0 items-center justify-center rounded-full"
           style={{
             background: `conic-gradient(${color} ${progress}%, rgba(255,255,255,0.08) ${progress}% 100%)`,
           }}
         >
-          <div className="flex h-[78px] w-[78px] items-center justify-center rounded-full bg-[#090f18]">
-            <span className="text-2xl font-black text-white">
+          <div className="flex h-[64px] w-[64px] items-center justify-center rounded-full bg-[#090f18]">
+            <span className="text-xl font-black text-white">
               {value}{suffix}
             </span>
           </div>

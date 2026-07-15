@@ -155,9 +155,7 @@ export default async function PlayerPage({ params }: Props) {
               <Link href="/#partidas" className="transition hover:text-white">
                 Partidas
               </Link>
-              <Link href="/#subir-demo" className="transition hover:text-white">
-                Subir Demo
-              </Link>
+
             </nav>
 
             <span className="hidden rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-red-300 md:inline-flex">
@@ -183,12 +181,12 @@ export default async function PlayerPage({ params }: Props) {
               </p>
 
               <div className="mt-3 flex flex-wrap items-center gap-4">
-                <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-violet-500/40 bg-black shadow-xl shadow-violet-950/30">
+                <div className="relative h-14 w-14 overflow-hidden rounded-xl border border-violet-500/40 bg-black shadow-xl shadow-violet-950/30">
                   <Image
                     src={getPlayerAvatar(String(player.steamid))}
                     alt={player.name}
                     fill
-                    sizes="64px"
+                    sizes="56px"
                     className="object-cover"
                     priority
                   />
@@ -200,11 +198,11 @@ export default async function PlayerPage({ params }: Props) {
                       {gc}
                     </span>
 
-                    <h1 className="text-2xl font-black tracking-tight text-white md:text-3xl">
+                    <h1 className="max-w-full break-words text-xl font-black leading-tight tracking-tight text-white md:text-2xl">
                       {player.name}
                     </h1>
 
-                    <span className="text-3xl text-zinc-300">☆</span>
+                    <span className="text-2xl text-zinc-300">☆</span>
 
                     <span className="inline-flex items-center gap-2 rounded-md bg-violet-600/90 px-3 py-1 text-xs font-black text-white shadow-lg shadow-violet-900/30">
                       <span className="h-2 w-2 rounded-full bg-violet-100 shadow-[0_0_8px_rgba(221,214,254,0.9)]" />
@@ -227,7 +225,7 @@ export default async function PlayerPage({ params }: Props) {
               </p>
 
               <p
-                className={`mt-1 text-4xl font-black ${getRatingColor(
+                className={`mt-1 text-3xl font-black ${getRatingColor(
                   Number(player.ratingS4N)
                 )}`}
               >
@@ -245,7 +243,7 @@ export default async function PlayerPage({ params }: Props) {
             </div>
           </div>
 
-          <div className="relative mt-4 grid gap-2 md:grid-cols-6">
+          <div className="relative mt-4 grid gap-2 sm:grid-cols-3 xl:grid-cols-6">
             <MiniStat icon="⚔️" title="Partidas" value={player.matches} />
             <MiniStat icon="♻️" title="Winrate" value={`${player.winrate}%`} />
             <MiniStat icon="🎯" title="MVPs" value={player.mvps} />
@@ -261,7 +259,7 @@ export default async function PlayerPage({ params }: Props) {
               <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
                 Resumen rápido
               </p>
-              <h2 className="text-2xl font-black text-white">Estado actual</h2>
+              <h2 className="text-xl font-black text-white">Estado actual</h2>
             </div>
 
             <p className="text-sm font-bold text-zinc-400">
@@ -521,7 +519,7 @@ export default async function PlayerPage({ params }: Props) {
             <span className="text-yellow-400">N</span>
           </p>
           <p className="mt-2 text-xs text-zinc-500">
-            © 2026 Stats4Newbas. Liga privada de amigos.
+            © 2026 Conardos DownLeague. Liga privada de amigos.
           </p>
         </footer>
       </section>

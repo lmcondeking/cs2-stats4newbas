@@ -208,9 +208,9 @@ export default function Home() {
   }[];
 
   return (
-    <main className="s4n-page min-h-screen px-3 py-4 sm:px-4 sm:py-5 text-white">
-      <section className="mx-auto w-full max-w-[1180px]">
-        <header className="s4n-nav sticky top-0 z-30 mb-4 rounded-xl border border-white/10 px-4 py-2.5 backdrop-blur-xl">
+    <main className="s4n-page min-h-screen px-3 py-3 text-white sm:px-5 lg:px-8 lg:py-6">
+      <section className="mx-auto max-w-[1480px]">
+        <header className="s4n-nav sticky top-3 z-30 mb-6 rounded-[1.15rem] border border-white/10 px-4 py-3 backdrop-blur-2xl sm:px-5">
           <div className="flex items-center justify-between gap-4">
             <Link href="/" className="text-2xl font-black tracking-tight">
               <span className="text-red-500">S4</span><span className="text-yellow-400">N</span>
@@ -233,8 +233,8 @@ export default function Home() {
           </div>
         </header>
 
-        <section className="mb-4 grid gap-4 lg:grid-cols-[1.42fr_0.88fr]">
-          <div className="s4n-card relative overflow-hidden rounded-2xl border border-white/10 p-4 sm:p-5">
+        <section className="mb-6 grid gap-4 lg:grid-cols-[1.7fr_0.75fr]">
+          <div className="s4n-card s4n-hero relative overflow-hidden rounded-[1.6rem] border border-white/10 p-5 sm:p-7">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(239,68,68,0.24),transparent_34%),radial-gradient(circle_at_90%_20%,rgba(245,158,11,0.14),transparent_30%)]" />
             <div className="relative">
               <div className="flex flex-wrap items-center gap-2">
@@ -248,18 +248,18 @@ export default function Home() {
                 )}
               </div>
 
-              <h1 className="mt-3 max-w-full pb-1 text-[2.15rem] font-black leading-[1.04] tracking-[-0.035em] sm:text-4xl lg:text-5xl">
+              <h1 className="mt-5 max-w-4xl pb-2 text-[clamp(2.6rem,6vw,5.75rem)] font-black leading-[0.92] tracking-[-0.055em]">
                 CS2
                 <span className="block bg-gradient-to-r from-red-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
                   Conardos DownLeague
                 </span>
               </h1>
 
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-300 md:text-base">
+              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-300 md:text-base">
                 Un lugar donde se reúnen 6 conos para armar un equipo de CS2
                 y jugar dentro de todas sus discapacidades.
               </p>
-              <div className="mt-4 grid gap-2 sm:grid-cols-4">
+              <div className="mt-5 grid gap-3 sm:grid-cols-4">
                 <SeasonStat icon="🎮" title="Partidas" value={matches.length} />
                 <SeasonStat icon="👥" title="Jugadores" value={ranking.length} />
                 <SeasonStat icon="🎯" title="Rondas" value={totalRounds} />
@@ -268,20 +268,20 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="s4n-card relative overflow-hidden rounded-2xl border border-red-500/25 p-4 text-center sm:p-5">
+          <div className="s4n-card s4n-leader-card relative overflow-hidden rounded-[1.6rem] border border-yellow-500/25 p-5 text-center sm:p-6">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(245,158,11,0.15),transparent_36%)]" />
             <div className="relative">
               <p className="text-[11px] font-black uppercase tracking-[0.35em] text-yellow-400">Season Leader</p>
               {topPlayer ? (
                 <Link href={`/player/${topPlayer.steamid}`}>
-                  <div className="relative mx-auto mt-4 h-20 w-20 overflow-hidden rounded-full border-4 border-yellow-500 shadow-xl shadow-yellow-500/20">
+                  <div className="relative mx-auto mt-5 h-24 w-24 overflow-hidden rounded-full border-4 border-yellow-500 shadow-xl shadow-yellow-500/20">
                     <Image src={getPlayerAvatar(topPlayer.steamid)} alt={topPlayer.name} fill sizes="96px" className="object-cover" priority />
                   </div>
                   <div className="mt-4 flex items-center justify-center gap-2">
                     <span className="flex h-6 w-6 items-center justify-center rounded-full border border-violet-400 text-[11px] font-black text-violet-300">{getPlayerGc(topPlayer)}</span>
                     <h2 className="whitespace-nowrap text-xl font-black text-white">{topPlayer.name}</h2>
                   </div>
-                  <p className="mt-2 text-4xl font-black text-yellow-400">
+                  <p className="mt-2 text-5xl font-black text-yellow-400">
                     {topPlayer.ratingS4N}
                   </p>
                   <p className="mt-2 text-sm text-zinc-400">
@@ -341,7 +341,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="s4n-card mb-5 rounded-2xl border border-white/10 p-4 sm:p-5">
+        <section className="s4n-card s4n-section mb-6 rounded-[1.35rem] border border-white/10 p-4 sm:p-5">
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
@@ -364,13 +364,13 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mb-5 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-          <div className="s4n-card rounded-2xl border border-white/10 p-4 sm:p-5">
+        <section className="mb-6 grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+          <div className="s4n-card s4n-section rounded-[1.35rem] border border-white/10 p-4 sm:p-5">
             <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">🏆 Podio oficial</p>
             <h2 className="mt-1 text-2xl font-black text-white">Top 3 Rating S4N</h2>
             <div className="mt-4 grid gap-3 md:grid-cols-3">
               {ranking.slice(0, 3).map((player, index) => (
-                <Link key={player.steamid} href={`/player/${player.steamid}`} className={`group relative overflow-hidden rounded-xl border bg-black/35 p-3 text-center transition hover:-translate-y-0.5 ${index === 0 ? "border-yellow-500/65 shadow-lg shadow-yellow-500/10 md:order-2" : index === 1 ? "border-zinc-400/45 md:order-1" : "border-orange-600/55 md:order-3"}`}>
+                <Link key={player.steamid} href={`/player/${player.steamid}`} className={`group relative overflow-hidden rounded-[1.2rem] border bg-black/35 p-4 text-center transition hover:-translate-y-0.5 ${index === 0 ? "border-yellow-500/65 shadow-lg shadow-yellow-500/10 md:order-2" : index === 1 ? "border-zinc-400/45 md:order-1" : "border-orange-600/55 md:order-3"}`}>
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 transition group-hover:opacity-100" />
                   <p className="relative text-3xl">{index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉"}</p>
                   <div className="relative mx-auto mt-2 h-20 w-20 overflow-hidden rounded-full border-2 border-red-500/70">
@@ -387,7 +387,7 @@ export default function Home() {
             </div>
           </div>
 
-          <section id="individuales" className="s4n-card rounded-2xl border border-white/10 p-4 sm:p-5">
+          <section id="individuales" className="s4n-card s4n-section rounded-[1.35rem] border border-white/10 p-4 sm:p-5">
             <div className="mb-4 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">🏅 Categorías individuales</p>
@@ -401,7 +401,7 @@ export default function Home() {
           </section>
         </section>
 
-        <section id="ranking" className="s4n-card mb-5 overflow-hidden rounded-2xl border border-white/10">
+        <section id="ranking" className="s4n-card s4n-ranking mb-6 overflow-hidden rounded-[1.35rem] border border-white/10">
           <div className="border-b border-white/10 px-5 py-3"><p className="text-xs uppercase tracking-[0.35em] text-[#9aa4b2]">Ranking completo</p></div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1120px]">
@@ -447,7 +447,7 @@ export default function Home() {
 
         <section
           id="desglose-individuales"
-          className="s4n-card mb-5 rounded-2xl border border-white/10 p-4 sm:p-5"
+          className="s4n-card s4n-section mb-6 rounded-[1.35rem] border border-white/10 p-4 sm:p-5"
         >
           <details open>
             <summary className="cursor-pointer list-none">
@@ -522,7 +522,7 @@ export default function Home() {
           </details>
         </section>
 
-        <section id="partidas" className="s4n-card mb-5 rounded-2xl border border-white/10 p-4 sm:p-5">
+        <section id="partidas" className="s4n-card s4n-section mb-6 rounded-[1.35rem] border border-white/10 p-4 sm:p-5">
           <details>
             <summary className="cursor-pointer list-none">
               <div className="flex items-center justify-between"><div><p className="text-xs uppercase tracking-[0.35em] text-red-400">Actividad reciente</p><h2 className="text-2xl font-black text-white">Historial de partidas</h2></div><span className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-sm font-bold text-zinc-300">Abrir / cerrar</span></div>
@@ -543,7 +543,7 @@ export default function Home() {
 
         <section
           id="equipos-futbol"
-          className="s4n-card mb-5 rounded-2xl border border-white/10 p-4 sm:p-5"
+          className="s4n-card s4n-section mb-6 rounded-[1.35rem] border border-white/10 p-4 sm:p-5"
         >
           <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
             <div>

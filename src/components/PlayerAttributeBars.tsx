@@ -23,7 +23,7 @@ export default function PlayerAttributeBars({ player }: Props) {
   ];
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
+    <section className="rounded-[1.25rem] border border-white/10 bg-[#080d15]/75 p-4 shadow-[0_18px_45px_rgba(0,0,0,.28)] backdrop-blur-xl">
       <div className="mb-4">
         <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
           Perfil de rendimiento

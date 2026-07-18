@@ -56,7 +56,7 @@ export default function PlayerComparison({
 
   if (!rival) {
     return (
-      <div className="rounded-xl border border-white/10 bg-black/30 p-4 text-zinc-400">
+      <div className="rounded-xl border border-white/10 bg-[#060a11]/70 p-4 text-zinc-400">
         No hay otro jugador disponible para comparar.
       </div>
     );
@@ -67,13 +67,13 @@ export default function PlayerComparison({
   ).length;
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
+    <section className="rounded-[1.25rem] border border-white/10 bg-[#080d15]/75 p-4 shadow-[0_18px_45px_rgba(0,0,0,.28)] backdrop-blur-xl">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
             Comparador dinámico
           </p>
-          <h3 className="mt-1 text-lg font-black text-white">Duelo estadístico</h3>
+          <h3 className="mt-1 text-xl font-black text-white">Duelo estadístico</h3>
         </div>
 
         <label className="min-w-[220px]">

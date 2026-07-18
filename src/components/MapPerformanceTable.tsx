@@ -10,7 +10,7 @@ export default function MapPerformanceTable({ maps }: { maps: MapStat[] }) {
   );
 
   return (
-    <div className="overflow-hidden rounded-xl border border-white/10 bg-black/25">
+    <div className="overflow-hidden rounded-xl border border-white/10 bg-[#070b12]/70">
       <div className="hidden grid-cols-[145px_55px_1fr_1fr_1fr_1fr_75px] gap-3 border-b border-white/10 bg-white/[0.03] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-500 md:grid">
         <span>Mapa</span>
         <span>PJ</span>

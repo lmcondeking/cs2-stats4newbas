@@ -75,17 +75,17 @@ export default function PlayerCharts({ data }: Props) {
   const trend = Number((lastValue - average).toFixed(2));
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
+    <section className="rounded-[1.25rem] border border-white/10 bg-[#080d15]/75 p-4 shadow-[0_18px_45px_rgba(0,0,0,.28)] backdrop-blur-xl">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
             Evolución por partida
           </p>
-          <h3 className="mt-1 text-lg font-black text-white">{config.title}</h3>
+          <h3 className="mt-1 text-xl font-black text-white">{config.title}</h3>
           <p className="mt-1 text-sm text-zinc-500">{config.subtitle}</p>
         </div>
 
-        <div className="flex rounded-xl border border-white/10 bg-black/30 p-1">
+        <div className="flex rounded-xl border border-white/10 bg-[#060a11]/70 p-1">
           {(Object.keys(chartConfig) as ChartKey[]).map((key) => (
             <button
               key={key}
@@ -104,7 +104,7 @@ export default function PlayerCharts({ data }: Props) {
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_185px]">
-        <div className="h-[210px] rounded-xl border border-white/10 bg-[#09101a]/70 p-2">
+        <div className="h-[260px] rounded-xl border border-white/10 bg-[#09101a]/70 p-2">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={data}
@@ -180,7 +180,7 @@ function Metric({
   color: string;
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-black/30 p-3">
+    <div className="rounded-xl border border-white/10 bg-[#060a11]/70 p-3">
       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
         {title}
       </p>

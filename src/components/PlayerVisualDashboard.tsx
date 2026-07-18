@@ -17,12 +17,12 @@ export default function PlayerVisualDashboard({ player }: { player: Player }) {
   const maxWeapon = Math.max(1, ...weapons.map(([, kills]) => Number(kills)));
 
   return (
-    <section className="s4n-card mt-5 rounded-2xl border border-white/10 p-4">
+    <section className="s4n-card mt-5 rounded-[1.35rem] border border-white/10 p-4 sm:p-5">
       <div className="mb-4">
         <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
           Panel Pro
         </p>
-        <h2 className="mt-1 text-lg font-black text-white">
+        <h2 className="mt-1 text-xl font-black text-white">
           Rendimiento visual
         </h2>
       </div>
@@ -35,11 +35,11 @@ export default function PlayerVisualDashboard({ player }: { player: Player }) {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
-          <div className="rounded-xl border border-white/10 bg-black/30 p-4">
+          <div className="rounded-xl border border-white/10 bg-[#060a11]/70 p-4">
             <p className="text-xs font-black uppercase tracking-[0.25em] text-zinc-400">
               Entry Success
             </p>
-            <p className="mt-2 text-2xl font-black text-orange-400">
+            <p className="mt-2 text-3xl font-black text-orange-400">
               {player.openingDuelWinPercent}%
             </p>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
@@ -55,7 +55,7 @@ export default function PlayerVisualDashboard({ player }: { player: Player }) {
             </div>
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-black/30 p-4">
+          <div className="rounded-xl border border-white/10 bg-[#060a11]/70 p-4">
             <p className="text-xs font-black uppercase tracking-[0.25em] text-zinc-400">
               Armas más usadas
             </p>
@@ -104,16 +104,16 @@ function RingStat({
   const progress = Math.max(0, Math.min(100, (value / max) * 100));
 
   return (
-    <div className="rounded-xl border border-white/10 bg-black/30 p-4">
+    <div className="rounded-xl border border-white/10 bg-[#060a11]/70 p-4">
       <div className="flex items-center gap-4">
         <div
-          className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full"
+          className="relative flex h-20 w-20 shrink-0 items-center justify-center rounded-full"
           style={{
             background: `conic-gradient(${color} ${progress}%, rgba(255,255,255,0.08) ${progress}% 100%)`,
           }}
         >
-          <div className="flex h-[50px] w-[50px] items-center justify-center rounded-full bg-[#090f18]">
-            <span className="text-lg font-black text-white">
+          <div className="flex h-[64px] w-[64px] items-center justify-center rounded-full bg-[#090f18]">
+            <span className="text-xl font-black text-white">
               {value}{suffix}
             </span>
           </div>

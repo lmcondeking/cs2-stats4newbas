@@ -1,32 +1,34 @@
-# Stats4Newbas V2 — Primera entrega organizada
+# Stats4Newbas — Entrega grande visual
 
-## Incluye
-- Home actual mejorada y organizada.
-- Perfil individual completo.
-- Comparador, gráficos, badges, análisis automático, mapas y dashboard visual.
-- Parser de demos y ranking histórico.
-- Base de estilos globales premium.
-- Estructura correcta para Next.js App Router.
+Esta entrega trabaja sobre la estructura existente. No reemplaza el producto ni modifica el parser o el cálculo del Rating S4N.
 
-## Antes de ejecutar
-1. Copiar los JSON de partidas dentro de `data/matches/`.
-2. Copiar los avatares dentro de `public/avatars/` con estos nombres:
-   - `conde.png`
-   - `Ari.png`
-   - `tomi.png`
-   - `nico.png`
-   - `ludo.png`
-   - `tenedor.png`
-   - `default.png`
-3. Instalar dependencias: `npm install`.
-4. Ejecutar: `npm run dev`.
+## Cambios visibles
 
-## Para procesar demos
-El script espera una carpeta `demos/` y genera JSON dentro de `data/matches/`.
-Ejecutar desde la raíz:
+- Background `background-v5.png` restaurado y usado como parte central de la identidad visual.
+- Hero existente convertido en una portada real, conservando textos, métricas y líder.
+- Contenedores más anchos y mejor uso del espacio en pantallas grandes.
+- Navegación flotante con mejor contraste y línea dorada.
+- Cards translúcidas, profundidad, blur y bordes unificados.
+- Jerarquía visual más marcada para ranking, premios y secciones.
+- Perfil individual con hero propio y continuidad visual con la Home.
+- Componentes internos más compactos y consistentes.
+- Mejoras responsive para que el background y el hero funcionen en móvil.
+- Protección contra desbordes de nombres y títulos.
+
+## Instalación
+
+Reemplazar en el proyecto actual:
+
+- `src/app`
+- `src/components`
+- `src/lib`
+- `public`
+
+Luego ejecutar:
 
 ```bash
-node scripts/process-all-demos.js
+npm install
+npm run dev
 ```
 
-Nota: si el script fue movido a `scripts/`, puede ser necesario ajustar sus rutas relativas de `__dirname` hacia la raíz del proyecto. La opción más simple es dejar una copia del script en la raíz al procesar demos, o adaptar `demoFolder` y `outputFolder`.
+Los datos deben seguir en la carpeta `data/matches` del proyecto original.

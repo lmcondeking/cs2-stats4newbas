@@ -81,7 +81,7 @@ export default function PlayerAIAnalyst({ player }: { player: Player }) {
       : "Mantener el estilo actual y trabajar especialmente los mapas de menor rating.";
 
   return (
-    <section className="s4n-card mt-5 overflow-hidden rounded-[1.35rem] border border-yellow-500/20 p-5">
+    <section className="s4n-card mt-5 overflow-hidden rounded-2xl border border-yellow-500/20 p-4">
       <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
           <div className="flex items-center gap-3">
@@ -92,7 +92,7 @@ export default function PlayerAIAnalyst({ player }: { player: Player }) {
               <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
                 S4N Analyst
               </p>
-              <h2 className="text-xl font-black text-white">Informe automático</h2>
+              <h2 className="text-lg font-black text-white">Informe automático</h2>
             </div>
           </div>
 
@@ -122,7 +122,7 @@ export default function PlayerAIAnalyst({ player }: { player: Player }) {
             <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
               Especialidad detectada
             </p>
-            <p className="mt-2 text-xl font-black text-yellow-400">
+            <p className="mt-2 text-lg font-black text-yellow-400">
               {Number(player.adr) >= 90
                 ? "Firepower"
                 : Number(player.openingDuelWinPercent) >= 55

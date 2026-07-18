@@ -1,50 +1,79 @@
 @import "tailwindcss";
 
 :root {
-  --s4n-bg: #05070b;
-  --s4n-panel: rgba(13, 17, 24, 0.88);
+  --s4n-bg: #03050a;
+  --s4n-panel: rgba(10, 14, 22, 0.88);
+  --s4n-panel-strong: rgba(12, 17, 27, 0.96);
   --s4n-line: rgba(255, 255, 255, 0.09);
+  --s4n-line-strong: rgba(255, 255, 255, 0.15);
   --s4n-red: #ef4444;
   --s4n-gold: #facc15;
+  --s4n-muted: #8b95a5;
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; background: var(--s4n-bg); }
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 10% 0%, rgba(239,68,68,.10), transparent 28rem),
-    radial-gradient(circle at 90% 10%, rgba(250,204,21,.07), transparent 24rem),
-    linear-gradient(180deg, #080b11 0%, #05070b 42%, #030509 100%);
+  min-width: 320px;
+  background: #03050a;
   color: #fff;
   font-family: Arial, Helvetica, sans-serif;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-::selection { background: rgba(250,204,21,.28); color: #fff; }
+::selection { background: rgba(250, 204, 21, .28); color: #fff; }
 
-.s4n-page { position: relative; isolation: isolate; overflow-x: hidden; }
+/* Fondo original restaurado. La capa oscura conserva legibilidad en toda la web. */
+.s4n-page {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  background:
+    linear-gradient(180deg, rgba(3, 5, 10, .74) 0%, rgba(3, 5, 10, .88) 38%, rgba(3, 5, 10, .96) 100%),
+    url("/images/background-v5.png") center top / cover fixed no-repeat;
+}
+
 .s4n-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(239, 68, 68, .15), transparent 32rem),
+    radial-gradient(circle at 90% 8%, rgba(250, 204, 21, .10), transparent 28rem),
+    linear-gradient(rgba(255,255,255,.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px);
+  background-size: auto, auto, 44px 44px, 44px 44px;
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.7) 58%, transparent 100%);
+}
+
+.s4n-page::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -2;
   pointer-events: none;
-  background-image:
-    linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
-  background-size: 42px 42px;
-  mask-image: linear-gradient(to bottom, rgba(0,0,0,.7), transparent 80%);
+  background: linear-gradient(90deg, rgba(0,0,0,.30), transparent 18%, transparent 82%, rgba(0,0,0,.30));
 }
 
 .s4n-card,
 .s4n-nav {
-  background: linear-gradient(145deg, rgba(18,23,32,.94), rgba(7,10,15,.90));
-  box-shadow: 0 18px 50px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.035);
+  background: linear-gradient(145deg, rgba(15, 20, 30, .92), rgba(5, 8, 14, .92));
+  box-shadow: 0 14px 38px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.035);
+  backdrop-filter: blur(15px);
 }
 
-.s4n-card { transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease; }
-.s4n-card:hover { border-color: rgba(255,255,255,.15); box-shadow: 0 22px 65px rgba(0,0,0,.34); }
+.s4n-nav { background: rgba(7, 10, 16, .88); }
+.s4n-card { transition: transform .20s ease, border-color .20s ease, box-shadow .20s ease; }
+.s4n-card:hover { border-color: rgba(255,255,255,.14); box-shadow: 0 18px 48px rgba(0,0,0,.36); }
+
+/* Evita que nombres largos, números y gráficos rompan las tarjetas. */
+.s4n-card, .s4n-card * { min-width: 0; }
+.s4n-card h1, .s4n-card h2, .s4n-card h3, .s4n-card p { overflow-wrap: anywhere; }
+.recharts-responsive-container { min-width: 0 !important; }
 
 button, a { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible {
@@ -53,15 +82,26 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 }
 
 @keyframes s4n-rise {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+main > section > section { animation: s4n-rise .36s ease both; }
 
-main section { animation: s4n-rise .45s ease both; }
+/* Scrollbar discreta */
+* { scrollbar-width: thin; scrollbar-color: rgba(250,204,21,.34) rgba(255,255,255,.04); }
+
+@media (max-width: 1023px) {
+  .s4n-page { background-attachment: scroll; background-position: center top; }
+}
 
 @media (max-width: 767px) {
-  .s4n-nav nav { gap: .9rem; font-size: .72rem; }
-  .s4n-nav { padding-left: .85rem; padding-right: .85rem; }
+  .s4n-nav nav { gap: .75rem; font-size: .68rem; }
+  .s4n-nav { padding-left: .8rem; padding-right: .8rem; }
+  .s4n-card:hover { transform: none; }
+}
+
+@media (max-width: 480px) {
+  .s4n-nav nav a:nth-child(2) { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

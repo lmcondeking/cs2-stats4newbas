@@ -136,9 +136,9 @@ export default async function PlayerPage({ params }: Props) {
 
 
   return (
-    <main className="s4n-page min-h-screen px-4 py-5 text-white">
-      <section className="mx-auto max-w-7xl">
-        <header className="s4n-nav sticky top-0 z-30 mb-5 rounded-2xl border border-white/10 px-5 py-3 backdrop-blur-xl">
+    <main className="s4n-page min-h-screen px-3 py-4 sm:px-4 sm:py-5 text-white">
+      <section className="mx-auto w-full max-w-[1180px]">
+        <header className="s4n-nav sticky top-0 z-30 mb-4 rounded-xl border border-white/10 px-4 py-2.5 backdrop-blur-xl">
           <div className="flex items-center justify-between gap-4">
             <Link href="/" className="text-2xl font-black tracking-tight">
               <span className="text-red-500">S4</span>
@@ -171,7 +171,7 @@ export default async function PlayerPage({ params }: Props) {
           ← Volver al ranking
         </Link>
 
-        <section className="s4n-card relative overflow-hidden rounded-[1.35rem] border border-white/10 p-5">
+        <section className="s4n-card relative overflow-hidden rounded-2xl border border-white/10 p-4 sm:p-5">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_5%,rgba(239,68,68,0.20),transparent_34%),radial-gradient(circle_at_90%_15%,rgba(245,158,11,0.10),transparent_30%)]" />
 
           <div className="relative grid gap-4 lg:grid-cols-[1.5fr_0.75fr]">
@@ -198,7 +198,7 @@ export default async function PlayerPage({ params }: Props) {
                       {gc}
                     </span>
 
-                    <h1 className="max-w-full break-words text-xl font-black leading-tight tracking-tight text-white md:text-2xl">
+                    <h1 className="max-w-full break-words text-lg font-black leading-tight tracking-tight text-white sm:text-xl md:text-2xl">
                       {player.name}
                     </h1>
 
@@ -219,13 +219,13 @@ export default async function PlayerPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="rounded-[1.1rem] border border-white/10 bg-black/35 p-4 text-center">
+            <div className="rounded-xl border border-white/10 bg-black/35 p-3.5 text-center">
               <p className="text-xs font-black uppercase tracking-[0.35em] text-[#9aa4b2]">
                 Rating S4N
               </p>
 
               <p
-                className={`mt-1 text-3xl font-black ${getRatingColor(
+                className={`mt-1 text-2xl font-black ${getRatingColor(
                   Number(player.ratingS4N)
                 )}`}
               >
@@ -253,7 +253,7 @@ export default async function PlayerPage({ params }: Props) {
           </div>
         </section>
 
-        <section className="s4n-card mt-5 rounded-[1.45rem] border border-white/10 p-5">
+        <section className="s4n-card mt-4 rounded-2xl border border-white/10 p-4 sm:p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
@@ -332,7 +332,7 @@ export default async function PlayerPage({ params }: Props) {
 
         <PlayerVisualDashboard player={player} />
 
-        <section className="s4n-card mt-5 rounded-[1.35rem] border border-white/10 p-5">
+        <section className="s4n-card mt-4 rounded-2xl border border-white/10 p-4 sm:p-5">
           <div className="grid gap-3 md:grid-cols-4">
             <RecordCard title="Mejor mapa" value={player.bestMap ? cleanMapName(player.bestMap.map) : "—"} detail={player.bestMap ? `${player.bestMap.ratingS4N} rating` : "Sin datos"} />
             <RecordCard title="Arma principal" value={player.favoriteWeapon ? String(player.favoriteWeapon.weapon).toUpperCase() : "—"} detail={player.favoriteWeapon ? `${player.favoriteWeapon.kills} kills` : "Sin datos"} />
@@ -341,7 +341,7 @@ export default async function PlayerPage({ params }: Props) {
           </div>
         </section>
 
-        <section className="s4n-card mt-5 rounded-[1.35rem] border border-white/10 p-5">
+        <section className="s4n-card mt-4 rounded-2xl border border-white/10 p-4 sm:p-5">
           <div className="grid gap-5 lg:grid-cols-[0.82fr_1.18fr]">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-yellow-400">
@@ -514,7 +514,7 @@ export default async function PlayerPage({ params }: Props) {
         </div>
 
         <footer className="py-8 text-center">
-          <p className="text-3xl font-black">
+          <p className="text-2xl font-black">
             <span className="text-red-500">S4</span>
             <span className="text-yellow-400">N</span>
           </p>
@@ -595,7 +595,7 @@ function KeyStatCard({ stat }: { stat: any }) {
       <p className="text-xs font-black uppercase tracking-widest text-zinc-400">
         {stat.title}
       </p>
-      <p className="mt-3 text-3xl font-black">{stat.value}</p>
+      <p className="mt-3 text-2xl font-black">{stat.value}</p>
       <p className="mt-3 text-xs text-zinc-500">{stat.sub}</p>
     </div>
   );

@@ -75,13 +75,13 @@ export default function PlayerCharts({ data }: Props) {
   const trend = Number((lastValue - average).toFixed(2));
 
   return (
-    <section className="rounded-[1.2rem] border border-white/10 bg-black/25 p-4">
+    <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
             Evolución por partida
           </p>
-          <h3 className="mt-1 text-xl font-black text-white">{config.title}</h3>
+          <h3 className="mt-1 text-lg font-black text-white">{config.title}</h3>
           <p className="mt-1 text-sm text-zinc-500">{config.subtitle}</p>
         </div>
 
@@ -104,7 +104,7 @@ export default function PlayerCharts({ data }: Props) {
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_185px]">
-        <div className="h-[230px] rounded-xl border border-white/10 bg-[#09101a]/70 p-2">
+        <div className="h-[210px] rounded-xl border border-white/10 bg-[#09101a]/70 p-2">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={data}

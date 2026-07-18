@@ -67,13 +67,13 @@ export default function PlayerComparison({
   ).length;
 
   return (
-    <section className="rounded-[1.2rem] border border-white/10 bg-black/25 p-4">
+    <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.3em] text-yellow-400">
             Comparador dinámico
           </p>
-          <h3 className="mt-1 text-xl font-black text-white">Duelo estadístico</h3>
+          <h3 className="mt-1 text-lg font-black text-white">Duelo estadístico</h3>
         </div>
 
         <label className="min-w-[220px]">

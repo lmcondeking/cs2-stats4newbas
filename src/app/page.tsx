@@ -9,6 +9,7 @@ const avatarMap: Record<string, string> = {
   "76561199082720391": "/avatars/nico.png",
   "76561198072925518": "/avatars/ludo.png",
   "76561198051821859": "/avatars/tenedor.png",
+  "76561198137218654": "/avatars/rocky.png",
 };
 
 const footballTeams = [
